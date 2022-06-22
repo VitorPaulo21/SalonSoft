@@ -6,6 +6,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:salon_soft/components/titled_icon.dart';
 import 'package:salon_soft/components/titled_icon_button.dart';
+import 'package:salon_soft/utils/routes.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -50,22 +51,26 @@ class _HomeScreenState extends State<HomeScreen> {
             title: "Serviços",
           ),
           TitledIconButton(
-            onTap: () {},
-            icon: Icon(Icons.badge_outlined),
+            onTap: () {
+              Navigator.of(context)
+                  .pushReplacementNamed(AppRoutes.PROFESSIONALS);
+            },
+            icon: const Icon(Icons.badge_outlined),
             title: "Profissionais",
           ),
-          SizedBox(
+          const SizedBox(
             width: 10,
           ),
           TitledIconButton(
             onTap: () {},
-            icon: Icon(
+            icon: const Icon(
               Icons.settings,
               color: Colors.black,
             ),
             title: "Ajustes",
             textStyle: TextStyle(color: Colors.black),
             invert: true,
+            centered: true,
           ),
         ],
       ),

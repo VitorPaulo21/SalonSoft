@@ -9,13 +9,15 @@ class TitledIconButton extends StatelessWidget {
   String title;
   TextStyle? textStyle;
   bool invert;
+  bool centered;
   TitledIconButton(
       {Key? key,
       required this.onTap,
       required this.icon,
       required this.title,
       this.textStyle,
-      this.invert = false})
+      this.invert = false,
+      this.centered = false})
       : super(key: key);
 
   @override
@@ -24,7 +26,13 @@ class TitledIconButton extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 4),
       child: InkWell(
         onTap: onTap,
-        child: TitledIcon(invert: invert, title: title, textStyle: textStyle, icon: icon),
+        child: TitledIcon(
+          invert: invert,
+          title: title,
+          textStyle: textStyle,
+          icon: icon,
+          centered: centered,
+        ),
       ),
     );
   }
