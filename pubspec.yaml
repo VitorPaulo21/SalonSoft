@@ -31,6 +31,8 @@ dependencies:
     sdk: flutter
   desktop_window: ^0.4.0
   syncfusion_flutter_datepicker: ^20.1.60
+  path_provider: ^2.0.11
+  file_picker: ^4.6.1
   boardview: ^0.2.2
   provider: ^6.0.3
   hive: ^2.2.2

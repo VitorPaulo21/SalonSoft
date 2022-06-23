@@ -6,6 +6,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:salon_soft/components/titled_icon.dart';
 import 'package:salon_soft/components/titled_icon_button.dart';
+import 'package:salon_soft/screens/professionals_screen.dart';
 import 'package:salon_soft/utils/routes.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
@@ -17,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int screen = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,15 +32,21 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           TitledIconButton(
-            onTap: () {},
+            onTap: () {
+              setState(() {
+                screen = 0;
+              });
+            },
             icon: Icon(
               Icons.calendar_month,
-              color: Theme.of(context).colorScheme.primary,
+              color: screen == 0 ? Theme.of(context).colorScheme.primary : null,
             ),
             title: "Agenda",
-            textStyle: TextStyle(
+            textStyle: screen == 0
+                ? TextStyle(
               color: Theme.of(context).colorScheme.primary,
-            ),
+                  )
+                : null,
           ),
           TitledIconButton(
             onTap: () {},
@@ -52,11 +60,20 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           TitledIconButton(
             onTap: () {
-              Navigator.of(context)
-                  .pushReplacementNamed(AppRoutes.PROFESSIONALS);
+                setState(() {
+                  screen = 3;
+                });
             },
-            icon: const Icon(Icons.badge_outlined),
+              icon: Icon(Icons.badge_outlined,
+                  color: screen == 3
+                      ? Theme.of(context).colorScheme.primary
+                      : null),
             title: "Profissionais",
+              textStyle: screen == 3
+                  ? TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                  : null
           ),
           const SizedBox(
             width: 10,
@@ -85,16 +102,24 @@ class _HomeScreenState extends State<HomeScreen> {
               child: SideBarSelection(),
             ),
             Expanded(
-                child: BoardView(
-                  lists: [
-                    BoardList(
-                      header: [Text("oi")],
-                    )
-                  ],
-                )),
+                child: screen == 0
+                    ? appointmentsScreen()
+                    : screen == 3
+                        ? ProfessionalsScreen()
+                        : Center()),
           ],
         ),
       ),
+    );
+  }
+
+  BoardView appointmentsScreen() {
+    return BoardView(
+      lists: [
+        BoardList(
+          header: [Text("oi")],
+        )
+      ],
     );
   }
 

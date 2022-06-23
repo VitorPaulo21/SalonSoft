@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:provider/provider.dart';
 import 'package:salon_soft/models/appointment.dart';
 import 'package:salon_soft/models/client.dart';
 import 'package:salon_soft/models/service.dart';
 import 'package:salon_soft/models/worker.dart';
+import 'package:salon_soft/providers/worker_provider.dart';
 
 import 'package:salon_soft/screens/home_screen.dart';
 import 'package:salon_soft/screens/professionals_screen.dart';
@@ -33,20 +35,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-          colorScheme: Theme.of(context).colorScheme.copyWith(
-                primary: Colors.pink[600],
-                secondary: Colors.amber,
-                onPrimary: Colors.white,
-                onSecondary: Colors.black,
-              )),
-      routes: {
-        AppRoutes.HOME: (ctx) => HomeScreen(),
-        AppRoutes.PROFESSIONALS: (ctx) => ProfessionalsScreen(),
-      },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<WorkerProvider>(
+          create: (ctx) {
+            return WorkerProvider();
+          },
+        )
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: Colors.pink[600],
+                  secondary: Colors.amber,
+                  onPrimary: Colors.white,
+                  onSecondary: Colors.black,
+                )),
+        routes: {
+          AppRoutes.HOME: (ctx) => HomeScreen(),
+          AppRoutes.PROFESSIONALS: (ctx) => ProfessionalsScreen(),
+        },
+      ),
     );
   }
 }
