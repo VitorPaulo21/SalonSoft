@@ -19,17 +19,20 @@ class WorkerAdapter extends TypeAdapter<Worker> {
     return Worker(
       name: fields[0] as String,
       photoPath: fields[1] as String,
+      isActive: fields[2] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Worker obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.photoPath);
+      ..write(obj.photoPath)
+      ..writeByte(2)
+      ..write(obj.isActive);
   }
 
   @override

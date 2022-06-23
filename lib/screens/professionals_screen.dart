@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:salon_soft/models/worker.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../components/titled_icon_button.dart';
 import '../utils/routes.dart';
@@ -30,71 +31,177 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
       shrinkWrap: true,
       semanticChildCount: workerProvider.workers.length,
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 250,
-        childAspectRatio: 3 / 4,
+        maxCrossAxisExtent: 300,
+        mainAxisExtent: 450,
+        
         mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
       ),
       children: [
         ...workerProvider.workers
-            .map<Widget>((worker) => Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+            .map<Widget>((worker) => Card(
+                  child: Stack(
                     children: [
-                      CircleAvatar(
-                        foregroundImage: FileImage(File(worker.photoPath)),
-                        radius: 60,
+                      WorkerGridItem(worker, workerProvider, context),
+                      if (!worker.isActive!)
+                        Positioned.fill(
+                            child: Container(
+                          color: Colors.grey.withAlpha(130),
+                        )),
+                      Positioned.fill(
+                        child: MaterialButton(
+                          onPressed: () {
+                            workerInfoDialog(context, worker);
+                          },
+                        ),
                       ),
-                      SizedBox(
-                        height: 20,
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        child: Transform.scale(
+                          scale: 0.8,
+                          child: Switch(
+                            value: worker.isActive!,
+                            onChanged: (value) {
+                              workerProvider.saveData(worker..isActive = value);
+                            },
+                          ),
+                        ),
                       ),
-                      Text(worker.name)
                     ],
                   ),
+                     
                 ))
             .toList(),
-        Stack(alignment: Alignment.bottomCenter, children: [
-          Container(
-            alignment: Alignment.center,
-            color: Colors.grey[200],
-            child: Icon(
-              Icons.add_circle,
-              color: Colors.grey[300],
-              size: 120,
+        addWorkerGridItem(context)
+      ],
+    );
+  }
+
+  Stack addWorkerGridItem(BuildContext context) {
+    return Stack(alignment: Alignment.bottomCenter, children: [
+      Container(
+        alignment: Alignment.center,
+        color: Colors.grey[200],
+        child: Icon(
+          Icons.add_circle,
+          color: Colors.grey[300],
+          size: 120,
+        ),
+      ),
+      Positioned.fill(
+        child: MaterialButton(
+          padding: const EdgeInsets.all(0),
+          onPressed: () {
+            addWorkerDialog(context);
+          },
+          // splashColor: Colors.pink,
+          // highlightColor: Colors.pink,
+          child: Container(
+            alignment: Alignment.bottomCenter,
+            width: double.infinity,
+            child: ElevatedButton(
+                onPressed: () {
+                  addWorkerDialog(context);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const [
+                    Icon(Icons.badge_outlined),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text("Adicionar")
+                  ],
+                )),
+          ),
+        ),
+      )
+    ]);
+  }
+
+  Container WorkerGridItem(
+      Worker worker, WorkerProvider workerProvider, BuildContext context) {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
+              right: 12,
+              top: 8,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Expanded(child: SizedBox()),
+                Icon(
+                  Icons.settings,
+                  size: 18,
+                  color: Colors.grey[300],
+                ),
+              ],
             ),
           ),
-          Positioned.fill(
-            child: MaterialButton(
-              padding: const EdgeInsets.all(0),
-              onPressed: () {
-                addWorkerDialog(context);
-              },
-              // splashColor: Colors.pink,
-              // highlightColor: Colors.pink,
-              child: Container(
-                alignment: Alignment.bottomCenter,
-                width: double.infinity,
-                child: ElevatedButton(
-                    onPressed: () {
-                      addWorkerDialog(context);
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.badge_outlined),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text("Adicionar")
-                      ],
-                    )),
+          Container(
+            width: 90,
+            height: 90,
+            child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(90)),
+                child: Image.file(File(worker.photoPath))),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.purple,
+                width: 2,
               ),
             ),
-          )
-        ])
-      ],
+          ),
+          Container(
+            alignment: Alignment.center,
+            height: 30,
+            child: Text(
+              worker.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+          Expanded(
+              child: SfCircularChart(
+            legend: Legend(
+                // textStyle: TextStyle(fontSize: 10),
+
+                isVisible: true,
+                position: LegendPosition.bottom,
+                isResponsive: true,
+                overflowMode: LegendItemOverflowMode.wrap,
+                orientation: LegendItemOrientation.vertical),
+            series: <CircularSeries<double, String>>[
+              DoughnutSeries(
+                  dataLabelSettings: const DataLabelSettings(
+                      isVisible: true,
+                      labelPosition: ChartDataLabelPosition.outside),
+                  dataSource: [20, 80],
+                  radius: "50%",
+                  innerRadius: "65%",
+                  pointColorMapper: (value, index) {
+                    return value == 80
+                        ? Colors.grey[300]
+                        : Theme.of(context).colorScheme.primary;
+                  },
+                  xValueMapper: (value, index) => value == 80
+                      ? "Total de Atendimentos"
+                      : "Este Proficional",
+                  yValueMapper: (value, index) => value)
+            ],
+          ))
+        ],
+      ),
     );
   }
 
@@ -197,6 +304,116 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
         }).then((worker) {
       if (worker != null) {
         workerProvider.addWorker(worker);
+      }
+    });
+  }
+
+  Future<void> workerInfoDialog(BuildContext context, Worker worker) async {
+    WorkerProvider workerProvider = Provider.of(context, listen: false);
+    showDialog<Worker>(
+        context: context,
+        builder: (ctx) {
+          TextEditingController nameController = TextEditingController();
+          String photoPath = worker.photoPath;
+          File? imageProfile = File(photoPath);
+          GlobalKey<FormState> formKey = GlobalKey<FormState>();
+          nameController.text = worker.name;
+          bool submitForm() {
+            return formKey.currentState?.validate() ?? false;
+          }
+
+          return StatefulBuilder(builder: (ctx, state) {
+            return AlertDialog(
+              title: Text("Alterar Informações"),
+              content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        FilePickerResult? result = await FilePicker.platform
+                            .pickFiles(type: FileType.image);
+                        if (result?.files.first.path?.isNotEmpty ?? false) {
+                          state(() {
+                            photoPath = result!.files.first.path!;
+                            imageProfile = File(photoPath);
+                          });
+                        }
+                      },
+                      child: CircleAvatar(
+                        maxRadius: 50,
+                        backgroundColor:
+                            imageProfile == null ? Colors.grey[300] : null,
+                        foregroundImage: imageProfile != null
+                            ? FileImage(imageProfile!)
+                            : null,
+                        child: imageProfile == null
+                            ? const Icon(
+                                Icons.add_a_photo_outlined,
+                                color: Colors.grey,
+                                size: 30,
+                              )
+                            : null,
+                      ),
+                    ),
+                    TextFormField(
+                      controller: nameController,
+                      textAlign: TextAlign.center,
+                      decoration: const InputDecoration(
+                        label: Text("Nome: "),
+                      ),
+                      validator: (txt) {
+                        if (txt?.isEmpty ?? false) {
+                          return "Nome não pode estar vazio!";
+                        }
+                      },
+                    )
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () async {
+                      // workerProvider.removeAllWorkers();
+                      if (submitForm()) {
+                        String newPath = "";
+                        if (imageProfile != null) {
+                          if (worker.photoPath.isEmpty) {
+                            Directory directory =
+                                await getApplicationDocumentsDirectory();
+                            Directory finalDirectory = Directory(
+                                "${directory.path}\\SalonSoft\\ProfileImages");
+                            if (!(await finalDirectory.exists())) {
+                              await finalDirectory.create(recursive: true);
+                            }
+                            newPath =
+                                "${finalDirectory.path}\\${(nameController.text).replaceAll(RegExp(r"\s\b|\b\s"), "")}${(BigInt.from(await finalDirectory.list().length) + BigInt.one).toString()}${imageProfile!.path.substring(imageProfile!.path.lastIndexOf("."), imageProfile!.path.length)}";
+                          } else {
+                            newPath = worker.photoPath;
+                          }
+
+                          File(photoPath).copy(newPath);
+                        }
+                        Navigator.of(context, rootNavigator: true).pop(Worker(
+                            name: nameController.text,
+                            photoPath: newPath.isEmpty ? "" : newPath));
+                      }
+                    },
+                    child: Text("Adicionar")),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context, rootNavigator: true).pop(null);
+                    },
+                    child: Text("Cancelar")),
+              ],
+            );
+          });
+        }).then((worker) {
+      if (worker != null) {
+        setState(() {
+          workerProvider.saveData(worker);
+        });
       }
     });
   }

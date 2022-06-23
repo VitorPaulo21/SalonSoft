@@ -8,5 +8,7 @@ class Worker extends HiveObject {
   String name;
   @HiveField(1)
   String photoPath;
-  Worker({required this.name, this.photoPath = ""});
+  @HiveField(2)
+  bool? isActive;
+  Worker({required this.name, this.photoPath = "", this.isActive = true});
 }

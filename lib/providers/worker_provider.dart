@@ -8,6 +8,7 @@ class WorkerProvider extends ChangeNotifier {
   List<Worker> _workers = [];
 
   WorkerProvider() {
+    
     syncToHive();
   }
 
@@ -21,7 +22,7 @@ class WorkerProvider extends ChangeNotifier {
     notifyListeners();
     Hive.box<Worker>("workers").add(worker);
   }
-
+  
   void removeAllWorkers() {
     _workers.forEach((worker) {
       if (worker.photoPath.isNotEmpty) {
@@ -31,5 +32,9 @@ class WorkerProvider extends ChangeNotifier {
     _workers.clear();
     Hive.box<Worker>("workers").clear();
     notifyListeners();
+  }
+  void saveData(Worker worker) {
+    notifyListeners();
+    worker.save();
   }
 }
