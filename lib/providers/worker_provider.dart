@@ -37,4 +37,9 @@ class WorkerProvider extends ChangeNotifier {
     notifyListeners();
     worker.save();
   }
+  void removeWorker(Worker worker) {
+    _workers.remove(worker);
+    notifyListeners();
+    worker.delete();
+  }
 }

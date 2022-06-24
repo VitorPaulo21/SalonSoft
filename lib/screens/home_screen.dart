@@ -1,5 +1,4 @@
-import 'package:boardview/board_list.dart';
-import 'package:boardview/boardview.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -7,6 +6,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:salon_soft/components/titled_icon.dart';
 import 'package:salon_soft/components/titled_icon_button.dart';
 import 'package:salon_soft/screens/professionals_screen.dart';
+import 'package:salon_soft/screens/servicesScreen.dart';
 import 'package:salon_soft/utils/routes.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int screen = 0;
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -54,9 +55,21 @@ class _HomeScreenState extends State<HomeScreen> {
             title: "Clientes",
           ),
           TitledIconButton(
-            onTap: () {},
-            icon: Icon(Icons.storefront),
+              onTap: () {
+                setState(() {
+                  screen = 2;
+                });
+              },
+              icon: Icon(Icons.storefront,
+                  color: screen == 2
+                      ? Theme.of(context).colorScheme.primary
+                      : null),
             title: "Serviços",
+              textStyle: screen == 2
+                  ? TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                  : null
           ),
           TitledIconButton(
             onTap: () {
@@ -104,6 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
                 child: screen == 0
                     ? appointmentsScreen()
+                    : screen == 2
+                        ? ServicesScreen()
                     : screen == 3
                         ? ProfessionalsScreen()
                         : Center()),
@@ -113,14 +128,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  BoardView appointmentsScreen() {
-    return BoardView(
-      lists: [
-        BoardList(
-          header: [Text("oi")],
-        )
-      ],
-    );
+  Widget appointmentsScreen() {
+    return Center();
   }
 
   Column SideBarSelection() {

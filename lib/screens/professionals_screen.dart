@@ -25,7 +25,9 @@ class ProfessionalsScreen extends StatefulWidget {
 class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
   @override
   Widget build(BuildContext context) {
+    
     WorkerProvider workerProvider = Provider.of<WorkerProvider>(context);
+    print("build called");
     return GridView(
       padding: const EdgeInsets.all(10.0),
       shrinkWrap: true,
@@ -33,45 +35,46 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 300,
         mainAxisExtent: 450,
-        
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
       ),
       children: [
         ...workerProvider.workers
-            .map<Widget>((worker) => Card(
-                  child: Stack(
-                    children: [
-                      WorkerGridItem(worker, workerProvider, context),
-                      if (!worker.isActive!)
-                        Positioned.fill(
-                            child: Container(
-                          color: Colors.grey.withAlpha(130),
-                        )),
-                      Positioned.fill(
-                        child: MaterialButton(
-                          onPressed: () {
-                            workerInfoDialog(context, worker);
-                          },
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        child: Transform.scale(
-                          scale: 0.8,
-                          child: Switch(
-                            value: worker.isActive!,
-                            onChanged: (value) {
-                              workerProvider.saveData(worker..isActive = value);
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
+            .map<Widget>((worker) {
+          print(worker.photoPath);
+          return Card(
+            child: Stack(
+              children: [
+                WorkerGridItem(worker, context),
+                if (!worker.isActive!)
+                  Positioned.fill(
+                      child: Container(
+                    color: Colors.grey.withAlpha(130),
+                  )),
+                Positioned.fill(
+                  child: MaterialButton(
+                    onPressed: () {
+                      workerInfoDialog(context, worker);
+                    },
                   ),
-                     
-                ))
+                ),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: Transform.scale(
+                    scale: 0.8,
+                    child: Switch(
+                      value: worker.isActive!,
+                      onChanged: (value) {
+                        workerProvider.saveData(worker..isActive = value);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        })
             .toList(),
         addWorkerGridItem(context)
       ],
@@ -122,7 +125,9 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
   }
 
   Container WorkerGridItem(
-      Worker worker, WorkerProvider workerProvider, BuildContext context) {
+      Worker worker, BuildContext context) {
+    File file = File(worker.photoPath);
+
     return Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -146,16 +151,20 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
             ),
           ),
           Container(
-            width: 90,
-            height: 90,
+            width: 95,
+            height: 95,
             child: ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(90)),
-                child: Image.file(File(worker.photoPath))),
+                child: Image.file(
+                  file,
+                  fit: BoxFit.cover,
+                  key: UniqueKey(),
+                )),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
                 color: Colors.purple,
-                width: 2,
+                width: 3,
               ),
             ),
           ),
@@ -264,6 +273,12 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
                           return "Nome não pode estar vazio!";
                         }
                       },
+                      onFieldSubmitted: (txt) async {
+                        if (submitForm()) {
+                          await callAddWorker(
+                              imageProfile, nameController, photoPath, context);
+                        }
+                      },
                     )
                   ],
                 ),
@@ -273,23 +288,8 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
                     onPressed: () async {
                       // workerProvider.removeAllWorkers();
                       if (submitForm()) {
-                        String newPath = "";
-                        if (imageProfile != null) {
-                          Directory directory =
-                              await getApplicationDocumentsDirectory();
-                          Directory finalDirectory = Directory(
-                              "${directory.path}\\SalonSoft\\ProfileImages");
-                          if (!(await finalDirectory.exists())) {
-                            await finalDirectory.create(recursive: true);
-                          }
-                          newPath =
-                              "${finalDirectory.path}\\${(nameController.text).replaceAll(RegExp(r"\s\b|\b\s"), "")}${(BigInt.from(await finalDirectory.list().length) + BigInt.one).toString()}${imageProfile!.path.substring(imageProfile!.path.lastIndexOf("."), imageProfile!.path.length)}";
-
-                          File(photoPath).copy(newPath);
-                        }
-                        Navigator.of(context, rootNavigator: true).pop(Worker(
-                            name: nameController.text,
-                            photoPath: newPath.isEmpty ? "" : newPath));
+                        await callAddWorker(
+                            imageProfile, nameController, photoPath, context);
                       }
                     },
                     child: Text("Adicionar")),
@@ -308,6 +308,28 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
     });
   }
 
+  Future<void> callAddWorker(
+      File? imageProfile,
+      TextEditingController nameController,
+      String photoPath,
+      BuildContext context) async {
+    String newPath = "";
+    if (imageProfile != null) {
+      Directory directory = await getApplicationDocumentsDirectory();
+      Directory finalDirectory =
+          Directory("${directory.path}\\SalonSoft\\ProfileImages");
+      if (!(await finalDirectory.exists())) {
+        await finalDirectory.create(recursive: true);
+      }
+      newPath =
+          "${finalDirectory.path}\\${(nameController.text).replaceAll(RegExp(r"\s\b|\b\s"), "")}${(BigInt.from(await finalDirectory.list().length) + BigInt.one).toString()}${imageProfile.path.substring(imageProfile.path.lastIndexOf("."), imageProfile.path.length)}";
+
+      File(photoPath).copy(newPath);
+    }
+    Navigator.of(context, rootNavigator: true).pop(Worker(
+        name: nameController.text, photoPath: newPath.isEmpty ? "" : newPath));
+  }
+
   Future<void> workerInfoDialog(BuildContext context, Worker worker) async {
     WorkerProvider workerProvider = Provider.of(context, listen: false);
     showDialog<Worker>(
@@ -317,6 +339,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
           String photoPath = worker.photoPath;
           File? imageProfile = File(photoPath);
           GlobalKey<FormState> formKey = GlobalKey<FormState>();
+          bool isActive = worker.isActive!;
           nameController.text = worker.name;
           bool submitForm() {
             return formKey.currentState?.validate() ?? false;
@@ -324,7 +347,22 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
 
           return StatefulBuilder(builder: (ctx, state) {
             return AlertDialog(
-              title: Text("Alterar Informações"),
+              titlePadding: EdgeInsets.only(top: 0, left: 20, right: 3),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("Alterar Informações"),
+                  IconButton(
+                      onPressed: () {
+                        removeWorkerDialog(context, worker);
+                      },
+                      icon: const Icon(
+                        Icons.delete_forever_outlined,
+                        color: Colors.red,
+                      ))
+                ],
+              ),
               content: Form(
                 key: formKey,
                 child: Column(
@@ -368,52 +406,115 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
                           return "Nome não pode estar vazio!";
                         }
                       },
-                    )
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    
                   ],
                 ),
               ),
+              actionsAlignment: MainAxisAlignment.spaceBetween,
               actions: [
-                TextButton(
-                    onPressed: () async {
-                      // workerProvider.removeAllWorkers();
-                      if (submitForm()) {
-                        String newPath = "";
-                        if (imageProfile != null) {
-                          if (worker.photoPath.isEmpty) {
-                            Directory directory =
-                                await getApplicationDocumentsDirectory();
-                            Directory finalDirectory = Directory(
-                                "${directory.path}\\SalonSoft\\ProfileImages");
-                            if (!(await finalDirectory.exists())) {
-                              await finalDirectory.create(recursive: true);
-                            }
-                            newPath =
-                                "${finalDirectory.path}\\${(nameController.text).replaceAll(RegExp(r"\s\b|\b\s"), "")}${(BigInt.from(await finalDirectory.list().length) + BigInt.one).toString()}${imageProfile!.path.substring(imageProfile!.path.lastIndexOf("."), imageProfile!.path.length)}";
-                          } else {
-                            newPath = worker.photoPath;
-                          }
+                
+                
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text("Ativo"),
+                    Switch(
+                        value: isActive,
+                        onChanged: (value) {
+                          state(() {
+                            isActive = value;
+                          });
+                        })
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    TextButton(
+                        onPressed: () async {
+                          // workerProvider.removeAllWorkers();
+                          if (submitForm()) {
+                            String newPath = "";
+                            if (imageProfile != null) {
+                              if (worker.photoPath.isEmpty) {
+                                Directory directory =
+                                    await getApplicationDocumentsDirectory();
+                                Directory finalDirectory = Directory(
+                                    "${directory.path}\\SalonSoft\\ProfileImages");
+                                if (!(await finalDirectory.exists())) {
+                                  await finalDirectory.create(recursive: true);
+                                }
+                                newPath =
+                                    "${finalDirectory.path}\\${(nameController.text).replaceAll(RegExp(r"\s\b|\b\s"), "")}${(BigInt.from(await finalDirectory.list().length) + BigInt.one).toString()}${imageProfile!.path.substring(imageProfile!.path.lastIndexOf("."), imageProfile!.path.length)}";
+                              } else {
+                                newPath = worker.photoPath;
+                              }
 
-                          File(photoPath).copy(newPath);
-                        }
-                        Navigator.of(context, rootNavigator: true).pop(Worker(
-                            name: nameController.text,
-                            photoPath: newPath.isEmpty ? "" : newPath));
-                      }
-                    },
-                    child: Text("Adicionar")),
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop(null);
-                    },
-                    child: Text("Cancelar")),
+                              File(photoPath).copy(newPath);
+                            }
+                            worker.name = nameController.text;
+                            worker.photoPath = newPath.isEmpty ? "" : newPath;
+                            worker.isActive = isActive;
+                            Navigator.of(context, rootNavigator: true)
+                                .pop(worker);
+                          }
+                        },
+                        child: Text("Salvar")),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop(null);
+                        },
+                        child: Text("Cancelar")),
+                  ],
+                ),
               ],
             );
           });
         }).then((worker) {
       if (worker != null) {
         setState(() {
+          imageCache.clear();
+          imageCache.clearLiveImages();
           workerProvider.saveData(worker);
         });
+      }
+    });
+  }
+
+  void removeWorkerDialog(BuildContext context, Worker worker) {
+    showDialog<bool>(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: const Text("Remover Profissional"),
+            content:
+                const Text("Deseja remover permanentemente este Profissional?"),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop(true);
+                  },
+                  child: const Text("Sim")),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop(false);
+                  },
+                  child: const Text("Não"))
+            ],
+          );
+        }).then((value) {
+      if (value ?? false) {
+        Provider.of<WorkerProvider>(context, listen: false)
+            .removeWorker(worker);
+        Navigator.of(context, rootNavigator: true).pop();
       }
     });
   }
