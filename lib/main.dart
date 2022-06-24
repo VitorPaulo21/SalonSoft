@@ -5,6 +5,7 @@ import 'package:salon_soft/models/appointment.dart';
 import 'package:salon_soft/models/client.dart';
 import 'package:salon_soft/models/service.dart';
 import 'package:salon_soft/models/worker.dart';
+import 'package:salon_soft/providers/services_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 
 import 'package:salon_soft/screens/home_screen.dart';
@@ -42,7 +43,12 @@ class MyApp extends StatelessWidget {
           create: (ctx) {
             return WorkerProvider();
           },
-        )
+        ),
+        ChangeNotifierProvider<ServicesProvider>(
+          create: (ctx) {
+            return ServicesProvider();
+          },
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

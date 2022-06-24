@@ -164,7 +164,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
               shape: BoxShape.circle,
               border: Border.all(
                 color: Colors.purple,
-                width: 3,
+                width: 4,
               ),
             ),
           ),
