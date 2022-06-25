@@ -38,14 +38,43 @@ class _ServicesScreenState extends State<ServicesScreen> {
               )),
             ],
           )),
-          Column(
-            children: [
-              Container(
-                width: constrains.maxWidth / 3,
-                height: 300,
-                color: Colors.blue,
-              ),
-            ],
+          SingleChildScrollView(
+            controller: ScrollController(),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                SizedBox(
+                  height: 10,
+                ),
+                Card(
+                  elevation: 5,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15))),
+                  child: Container(
+                    width: constrains.maxWidth / 3,
+                    height: 300,
+                   
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Card(
+                  elevation: 5,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15))),
+                  child: Container(
+                    height: (constrains.maxHeight - 30 - 15 - 10 - 300) > 400
+                        ? constrains.maxHeight - 30 - 15 - 10 - 300 - 16
+                        : 400,
+                    width: constrains.maxWidth / 3,
+                  ),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+              ],
+            ),
           )
         ],
       );
