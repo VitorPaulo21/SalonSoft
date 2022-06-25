@@ -22,8 +22,8 @@ class ServicesProvider with ChangeNotifier {
 
   void removeAllservices() {
     _services.clear();
-    Hive.box<Service>("workers").clear();
     notifyListeners();
+    Hive.box<Service>("services").clear();
   }
 
   void saveData(Service service) {

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
@@ -53,7 +54,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   child: Container(
                     width: constrains.maxWidth / 3,
                     height: 300,
-                   
                   ),
                 ),
                 SizedBox(
@@ -124,45 +124,177 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(10)))),
                     onPressed: () {
-                      showDialog<Service>(
+                      showDialog(
                           context: context,
                           builder: (ctx) {
+                            TextEditingController nameController =
+                                TextEditingController();
+                            TextEditingController hourController =
+                                TextEditingController();
+                            TextEditingController minController =
+                                TextEditingController();
+                            GlobalKey<FormState> formKey =
+                                GlobalKey<FormState>();
+
+                            void submitForm() {
+                              bool isvalid =
+                                  formKey.currentState?.validate() ?? false;
+                              if (isvalid) {
+                                Provider.of<ServicesProvider>(context,
+                                        listen: false)
+                                    .addservice(
+                                  Service(
+                                    name: nameController.text,
+                                    duration: Duration(
+                                      hours: int.parse(hourController.text),
+                                      minutes: int.parse(minController.text),
+                                    ),
+                                  ),
+                                );
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                              }
+                            }
+
                             return AlertDialog(
                               title: Text("Adicionar Serviço"),
                               content: Form(
+                                key: formKey,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     TextFormField(
+                                      controller: nameController,
+                                      maxLength: 25,
+                                      textInputAction: TextInputAction.next,
                                       decoration: InputDecoration(
-                                        label: Text("Nome: "),
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Theme.of(context)
+                                          label: Text("Nome: "),
+                                          border: RoundInputBorder(
+                                              Theme.of(context)
                                                   .colorScheme
                                                   .primary),
-                                          borderRadius: const BorderRadius.all(
-                                            Radius.circular(10),
-                                          ),
-                                        ),
-                                        errorBorder: const OutlineInputBorder(
-                                          borderSide:
-                                              BorderSide(color: Colors.red),
-                                          borderRadius: BorderRadius.all(
-                                            Radius.circular(10),
-                                          ),
-                                        ),
-                                      ),
+                                          errorBorder:
+                                              RoundInputBorder(Colors.red)),
+                                      validator: (txt) {
+                                        if (txt == null) {
+                                          return "Campo Vazio!";
+                                        } else if (txt.isEmpty) {
+                                          return "Campo Vazio!";
+                                        }
+                                      },
                                     ),
-                                    TextFormField()
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          flex: 1,
+                                          child: TextFormField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  2),
+                                            ],
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            textAlign: TextAlign.center,
+                                            controller: hourController,
+                                            decoration: InputDecoration(
+                                              suffixText: "Hs",
+                                              label: Text("Horas:"),
+                                              border: RoundInputBorder(
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .primary),
+                                              errorBorder:
+                                                  RoundInputBorder(Colors.red),
+                                            ),
+                                            // onFieldSubmitted: (txt) =>
+                                            //     submitForm(),
+                                            validator: (txt) {
+                                              if (txt == null) {
+                                                return "Campo Vazio!";
+                                              } else if (txt.isEmpty) {
+                                                return "Campo Vazio!";
+                                              } else if (int.tryParse(txt) ==
+                                                  null) {
+                                                return "Valor Inválido";
+                                              } else if (int.parse(txt) < 0) {
+                                                return "Negativo!";
+                                              } else if (int.parse(txt) > 24) {
+                                                return "Máximo 24H!";
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        const Text(":"),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        Flexible(
+                                          flex: 1,
+                                          child: TextFormField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  2),
+                                            ],
+                                            textInputAction:
+                                                TextInputAction.done,
+                                            onFieldSubmitted: (txt) =>
+                                                submitForm(),
+                                            textAlign: TextAlign.center,
+                                            controller: minController,
+                                            decoration: InputDecoration(
+                                              suffixText: "min",
+                                              label: Text("Mins:"),
+                                              border: RoundInputBorder(
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .primary),
+                                              errorBorder:
+                                                  RoundInputBorder(Colors.red),
+                                            ),
+                                            
+                                            validator: (txt) {
+                                              if (txt == null) {
+                                                return "Campo Vazio!";
+                                              } else if (txt.isEmpty) {
+                                                return "Campo Vazio!";
+                                              } else if (int.tryParse(txt) ==
+                                                  null) {
+                                                return "Valor Inválido";
+                                              } else if (int.parse(txt) == 0 &&
+                                                  (int.tryParse(hourController
+                                                              .text) ??
+                                                          0) <=
+                                                      0) {
+                                                return "Valor Zerado";
+                                              } else if (int.parse(txt) < 0) {
+                                                return "Negativo!";
+                                              } else if (int.parse(txt) > 59) {
+                                                return "Máximo 24min!";
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    )
                                   ],
                                 ),
                               ),
                               actions: [
                                 TextButton(
-                                    onPressed: () {}, child: Text("Adicionar")),
+                                    onPressed: submitForm,
+                                    child: const Text("Adicionar")),
                                 TextButton(
-                                    onPressed: () {}, child: Text("Cancelar")),
+                                    onPressed: () {
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop();
+                                    },
+                                    child: const Text("Cancelar")),
                               ],
                             );
                           });
@@ -190,6 +322,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
               ),
             ],
           )),
+    );
+  }
+
+  OutlineInputBorder RoundInputBorder(Color color) {
+    return OutlineInputBorder(
+      borderSide: BorderSide(color: color),
+      borderRadius: const BorderRadius.all(
+        Radius.circular(10),
+      ),
     );
   }
 
