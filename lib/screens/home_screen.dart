@@ -1,10 +1,10 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:salon_soft/components/titled_icon.dart';
 import 'package:salon_soft/components/titled_icon_button.dart';
+import 'package:salon_soft/screens/clients_screen.dart';
 import 'package:salon_soft/screens/professionals_screen.dart';
 import 'package:salon_soft/screens/servicesScreen.dart';
 import 'package:salon_soft/utils/routes.dart';
@@ -21,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int screen = 0;
   @override
   Widget build(BuildContext context) {
-   
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -45,14 +44,26 @@ class _HomeScreenState extends State<HomeScreen> {
             title: "Agenda",
             textStyle: screen == 0
                 ? TextStyle(
-              color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.primary,
                   )
                 : null,
           ),
           TitledIconButton(
-            onTap: () {},
-            icon: Icon(Icons.person_outline),
-            title: "Clientes",
+              onTap: () {
+                setState(() {
+                  screen = 1;
+                });
+              },
+              icon: Icon(Icons.storefront,
+                  color: screen == 1
+                      ? Theme.of(context).colorScheme.primary
+                      : null),
+              title: "Clientes",
+              textStyle: screen == 1
+                  ? TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                  : null
           ),
           TitledIconButton(
               onTap: () {
@@ -64,30 +75,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: screen == 2
                       ? Theme.of(context).colorScheme.primary
                       : null),
-            title: "Serviços",
+              title: "Serviços",
               textStyle: screen == 2
                   ? TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                     )
-                  : null
-          ),
+                  : null),
           TitledIconButton(
-            onTap: () {
+              onTap: () {
                 setState(() {
                   screen = 3;
                 });
-            },
+              },
               icon: Icon(Icons.badge_outlined,
                   color: screen == 3
                       ? Theme.of(context).colorScheme.primary
                       : null),
-            title: "Profissionais",
+              title: "Profissionais",
               textStyle: screen == 3
                   ? TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                     )
-                  : null
-          ),
+                  : null),
           const SizedBox(
             width: 10,
           ),
@@ -117,11 +126,13 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
                 child: screen == 0
                     ? appointmentsScreen()
-                    : screen == 2
-                        ? ServicesScreen()
-                    : screen == 3
-                        ? ProfessionalsScreen()
-                        : Center()),
+                    : screen == 1
+                        ? ClientsScreen()
+                        : screen == 2
+                            ? ServicesScreen()
+                            : screen == 3
+                                ? ProfessionalsScreen()
+                                : Center()),
           ],
         ),
       ),
@@ -134,54 +145,93 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Column SideBarSelection() {
     return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10,),
-                Container(
-                 
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  width: 1440 / 6,
-                  child: ElevatedButton(
-                    
-                    onPressed: () {},
-                    child:const TitledIcon(
-                      title: "Adicionar",
-                      icon: Icon(Icons.calendar_month_outlined),
-                      centered: true,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                      )
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10,),
-                Container(
-                  width: 1440 / 6,
-                  height: 1440 / 6,
-                  child: SfDateRangePicker(
-                    enablePastDates: false,
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  width: 1440 / 6,
-                  child: Text("Legenda"),
-                ),
-                const SizedBox(height: 10,),
-                const TitledIcon(title: "Pendentes", icon: Icon(Icons.check_circle, color: Colors.amber,)),
-                const SizedBox(height: 5,),
-                const TitledIcon(title: "Atendendo", icon: Icon(Icons.check_circle, color: Colors.purple,)),
-                const SizedBox(height: 5,),
-                const TitledIcon(title: "Concluido", icon: Icon(Icons.check_circle, color: Colors.green,)),
-                const SizedBox(height: 5,),
-                const TitledIcon(title: "Horario Cancelado", icon: Icon(Icons.check_circle, color: Colors.red,),),
-                const SizedBox(height: 5,),
-                TitledIcon(title: "Horario Indisponivel", icon: Icon(Icons.check_circle, color: Colors.lightBlue[900],),),
-                const SizedBox(height: 5,),
-              ],
-            );
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          height: 10,
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          width: 1440 / 6,
+          child: ElevatedButton(
+            onPressed: () {},
+            child: const TitledIcon(
+              title: "Adicionar",
+              icon: Icon(Icons.calendar_month_outlined),
+              centered: true,
+            ),
+            style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)))),
+          ),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Container(
+          width: 1440 / 6,
+          height: 1440 / 6,
+          child: SfDateRangePicker(
+            enablePastDates: false,
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          width: 1440 / 6,
+          child: Text("Legenda"),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        const TitledIcon(
+            title: "Pendentes",
+            icon: Icon(
+              Icons.check_circle,
+              color: Colors.amber,
+            )),
+        const SizedBox(
+          height: 5,
+        ),
+        const TitledIcon(
+            title: "Atendendo",
+            icon: Icon(
+              Icons.check_circle,
+              color: Colors.purple,
+            )),
+        const SizedBox(
+          height: 5,
+        ),
+        const TitledIcon(
+            title: "Concluido",
+            icon: Icon(
+              Icons.check_circle,
+              color: Colors.green,
+            )),
+        const SizedBox(
+          height: 5,
+        ),
+        const TitledIcon(
+          title: "Horario Cancelado",
+          icon: Icon(
+            Icons.check_circle,
+            color: Colors.red,
+          ),
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+        TitledIcon(
+          title: "Horario Indisponivel",
+          icon: Icon(
+            Icons.check_circle,
+            color: Colors.lightBlue[900],
+          ),
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+      ],
+    );
   }
 }

@@ -18,7 +18,7 @@ class ServiceAdapter extends TypeAdapter<Service> {
     };
     return Service(
       name: fields[0] as String,
-      duration: fields[1] as Duration,
+      duration: Duration(minutes: fields[1] as int),
     );
   }
 
@@ -29,7 +29,7 @@ class ServiceAdapter extends TypeAdapter<Service> {
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.duration);
+      ..write(obj.duration.inMinutes);
   }
 
   @override

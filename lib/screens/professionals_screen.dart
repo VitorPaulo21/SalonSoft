@@ -12,6 +12,7 @@ import 'package:salon_soft/providers/worker_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../components/circular_percentage_chart.dart';
 import '../components/titled_icon_button.dart';
 import '../utils/routes.dart';
 
@@ -31,7 +32,8 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
     return GridView(
       padding: const EdgeInsets.all(10.0),
       shrinkWrap: true,
-      semanticChildCount: workerProvider.workers.length,
+      semanticChildCount: workerProvider.objects.length + 1,
+      controller: ScrollController(),
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 300,
         mainAxisExtent: 450,
@@ -39,10 +41,17 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
         crossAxisSpacing: 10,
       ),
       children: [
-        ...workerProvider.workers
+        addWorkerGridItem(context),
+        ...workerProvider.objects
             .map<Widget>((worker) {
           print(worker.photoPath);
           return Card(
+            elevation: 5,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(15),
+              ),
+            ),
             child: Stack(
               children: [
                 WorkerGridItem(worker, context),
@@ -76,7 +85,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
           );
         })
             .toList(),
-        addWorkerGridItem(context)
+        
       ],
     );
   }
@@ -180,34 +189,12 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
               ),
             ),
           ),
-          Expanded(
-              child: SfCircularChart(
-            legend: Legend(
-                // textStyle: TextStyle(fontSize: 10),
-
-                isVisible: true,
-                position: LegendPosition.bottom,
-                isResponsive: true,
-                overflowMode: LegendItemOverflowMode.wrap,
-                orientation: LegendItemOrientation.vertical),
-            series: <CircularSeries<double, String>>[
-              DoughnutSeries(
-                  dataLabelSettings: const DataLabelSettings(
-                      isVisible: true,
-                      labelPosition: ChartDataLabelPosition.outside),
-                  dataSource: [20, 80],
-                  radius: "50%",
-                  innerRadius: "65%",
-                  pointColorMapper: (value, index) {
-                    return value == 80
-                        ? Colors.grey[300]
-                        : Theme.of(context).colorScheme.primary;
-                  },
-                  xValueMapper: (value, index) => value == 80
-                      ? "Total de Atendimentos"
-                      : "Este Proficional",
-                  yValueMapper: (value, index) => value)
-            ],
+          const Expanded(
+              child: CircularPercentageChart(
+            allValue: 100,
+            percentageValue: 20,
+            allvalueLegend: "Total de Atendimentos",
+            percentualValueLegend: "Este Proficional",
           ))
         ],
       ),
@@ -303,7 +290,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
           });
         }).then((worker) {
       if (worker != null) {
-        workerProvider.addWorker(worker);
+        workerProvider.addObject(worker);
       }
     });
   }
@@ -513,9 +500,10 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
         }).then((value) {
       if (value ?? false) {
         Provider.of<WorkerProvider>(context, listen: false)
-            .removeWorker(worker);
+            .removeObject(worker);
         Navigator.of(context, rootNavigator: true).pop();
       }
     });
   }
 }
+

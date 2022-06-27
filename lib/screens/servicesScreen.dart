@@ -18,9 +18,15 @@ class ServicesScreen extends StatefulWidget {
 
 class _ServicesScreenState extends State<ServicesScreen> {
   List<Service> services = [];
+  String query = "";
+  TextEditingController queryController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    services = Provider.of<ServicesProvider>(context).services;
+    services = Provider.of<ServicesProvider>(context).objects;
+    services = services
+        .where((service) =>
+            service.name.toLowerCase().contains(query.toLowerCase()))
+        .toList();
     return LayoutBuilder(builder: (ctx, constrains) {
       return Row(
         children: [
@@ -89,9 +95,31 @@ class _ServicesScreenState extends State<ServicesScreen> {
             borderRadius: BorderRadius.all(Radius.circular(90))),
         elevation: 5,
         child: CupertinoTextField(
+          controller: queryController,
+          onSubmitted: (txt) {
+            if (queryController.text.isNotEmpty) {
+              setState(() {
+                query = queryController.text;
+              });
+            }
+          },
+          onChanged: (txt) {
+            if (txt.isEmpty) {
+              setState(() {
+                query = queryController.text;
+              });
+            }
+          },
+          textInputAction: TextInputAction.search,
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 30),
           suffix: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                if (queryController.text.isNotEmpty) {
+                  setState(() {
+                    query = queryController.text;
+                  });
+                }
+              },
               icon: const Icon(
                 Icons.search,
                 color: Colors.cyan,
@@ -124,180 +152,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(10)))),
                     onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (ctx) {
-                            TextEditingController nameController =
-                                TextEditingController();
-                            TextEditingController hourController =
-                                TextEditingController();
-                            TextEditingController minController =
-                                TextEditingController();
-                            GlobalKey<FormState> formKey =
-                                GlobalKey<FormState>();
-
-                            void submitForm() {
-                              bool isvalid =
-                                  formKey.currentState?.validate() ?? false;
-                              if (isvalid) {
-                                Provider.of<ServicesProvider>(context,
-                                        listen: false)
-                                    .addservice(
-                                  Service(
-                                    name: nameController.text,
-                                    duration: Duration(
-                                      hours: int.parse(hourController.text),
-                                      minutes: int.parse(minController.text),
-                                    ),
-                                  ),
-                                );
-                                Navigator.of(context, rootNavigator: true)
-                                    .pop();
-                              }
-                            }
-
-                            return AlertDialog(
-                              title: Text("Adicionar Serviço"),
-                              content: Form(
-                                key: formKey,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    TextFormField(
-                                      controller: nameController,
-                                      maxLength: 25,
-                                      textInputAction: TextInputAction.next,
-                                      decoration: InputDecoration(
-                                          label: Text("Nome: "),
-                                          border: RoundInputBorder(
-                                              Theme.of(context)
-                                                  .colorScheme
-                                                  .primary),
-                                          errorBorder:
-                                              RoundInputBorder(Colors.red)),
-                                      validator: (txt) {
-                                        if (txt == null) {
-                                          return "Campo Vazio!";
-                                        } else if (txt.isEmpty) {
-                                          return "Campo Vazio!";
-                                        }
-                                      },
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          flex: 1,
-                                          child: TextFormField(
-                                            inputFormatters: [
-                                              LengthLimitingTextInputFormatter(
-                                                  2),
-                                            ],
-                                            textInputAction:
-                                                TextInputAction.next,
-                                            textAlign: TextAlign.center,
-                                            controller: hourController,
-                                            decoration: InputDecoration(
-                                              suffixText: "Hs",
-                                              label: Text("Horas:"),
-                                              border: RoundInputBorder(
-                                                  Theme.of(context)
-                                                      .colorScheme
-                                                      .primary),
-                                              errorBorder:
-                                                  RoundInputBorder(Colors.red),
-                                            ),
-                                            // onFieldSubmitted: (txt) =>
-                                            //     submitForm(),
-                                            validator: (txt) {
-                                              if (txt == null) {
-                                                return "Campo Vazio!";
-                                              } else if (txt.isEmpty) {
-                                                return "Campo Vazio!";
-                                              } else if (int.tryParse(txt) ==
-                                                  null) {
-                                                return "Valor Inválido";
-                                              } else if (int.parse(txt) < 0) {
-                                                return "Negativo!";
-                                              } else if (int.parse(txt) > 24) {
-                                                return "Máximo 24H!";
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        const Text(":"),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        Flexible(
-                                          flex: 1,
-                                          child: TextFormField(
-                                            inputFormatters: [
-                                              LengthLimitingTextInputFormatter(
-                                                  2),
-                                            ],
-                                            textInputAction:
-                                                TextInputAction.done,
-                                            onFieldSubmitted: (txt) =>
-                                                submitForm(),
-                                            textAlign: TextAlign.center,
-                                            controller: minController,
-                                            decoration: InputDecoration(
-                                              suffixText: "min",
-                                              label: Text("Mins:"),
-                                              border: RoundInputBorder(
-                                                  Theme.of(context)
-                                                      .colorScheme
-                                                      .primary),
-                                              errorBorder:
-                                                  RoundInputBorder(Colors.red),
-                                            ),
-                                            
-                                            validator: (txt) {
-                                              if (txt == null) {
-                                                return "Campo Vazio!";
-                                              } else if (txt.isEmpty) {
-                                                return "Campo Vazio!";
-                                              } else if (int.tryParse(txt) ==
-                                                  null) {
-                                                return "Valor Inválido";
-                                              } else if (int.parse(txt) == 0 &&
-                                                  (int.tryParse(hourController
-                                                              .text) ??
-                                                          0) <=
-                                                      0) {
-                                                return "Valor Zerado";
-                                              } else if (int.parse(txt) < 0) {
-                                                return "Negativo!";
-                                              } else if (int.parse(txt) > 59) {
-                                                return "Máximo 24min!";
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                    onPressed: submitForm,
-                                    child: const Text("Adicionar")),
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context, rootNavigator: true)
-                                          .pop();
-                                    },
-                                    child: const Text("Cancelar")),
-                              ],
-                            );
-                          });
+                      addServiceDialog();
                     },
                     child: const Text("Adicionar Serviço")),
               ),
@@ -307,22 +162,209 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 trailing: Text("Duração"),
               ),
               Expanded(
-                child: ListView.builder(
-                    controller: ScrollController(),
-                    itemCount: services.length,
-                    itemBuilder: (ctx, index) {
-                      return ListTile(
-                        leading: const Icon(Icons.work_outline),
-                        title: Text(services[index].name),
-                        trailing: Text(getTimeHoursByMinutes(
-                            services[index].duration.inMinutes)),
-                        key: UniqueKey(),
-                      );
-                    }),
+                child: servicesListComponentItem(),
               ),
             ],
           )),
     );
+  }
+
+  ListView servicesListComponentItem() {
+    return ListView.builder(
+        controller: ScrollController(),
+        itemCount: services.length,
+        itemBuilder: (ctx, index) {
+          return ListTile(
+            leading: const Icon(Icons.work_outline),
+            title: Text(services[index].name),
+            trailing:
+                Text(getTimeHoursByMinutes(services[index].duration.inMinutes)),
+            key: UniqueKey(),
+            onTap: () => addServiceDialog(services[index]),
+          );
+        });
+  }
+
+  Future<dynamic> addServiceDialog([Service? service]) {
+    return showDialog(
+        context: context,
+        builder: (ctx) {
+          TextEditingController nameController = TextEditingController();
+          TextEditingController hourController = TextEditingController();
+          TextEditingController minController = TextEditingController();
+          GlobalKey<FormState> formKey = GlobalKey<FormState>();
+          nameController.text = service?.name ?? "";
+          if (service != null) {
+            hourController.text =
+                service.duration.inHours.toString().padLeft(2, "0");
+            minController.text =
+                (service.duration.inMinutes % 60).toString().padLeft(2, "0");
+          }
+          void submitForm() {
+            bool isvalid = formKey.currentState?.validate() ?? false;
+            if (isvalid) {
+              if (service == null) {
+                Provider.of<ServicesProvider>(context, listen: false).addObject(
+                  Service(
+                    name: nameController.text,
+                    duration: Duration(
+                      hours: int.parse(hourController.text),
+                      minutes: int.parse(minController.text),
+                    ),
+                  ),
+                );
+              } else {
+                service.name = nameController.text;
+                service.duration = Duration(
+                  hours: int.parse(hourController.text),
+                  minutes: int.parse(minController.text),
+                );
+                Provider.of<ServicesProvider>(context, listen: false)
+                    .saveData(service);
+              }
+              Navigator.of(context, rootNavigator: true).pop();
+            }
+          }
+
+          return AlertDialog(
+            titlePadding: service == null
+                ? null
+                : EdgeInsets.only(left: 24, right: 3, top: 8),
+            title: service == null
+                ? Text("Adicionar Serviço")
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Adicionar Serviço"),
+                      IconButton(
+                        onPressed: (() =>
+                            removeServiceDialog(context, service)),
+                        icon: const Icon(
+                          Icons.delete_forever_outlined,
+                          color: Colors.red,
+                        ),
+                      )
+                    ],
+                  ),
+            content: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    maxLength: 25,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                        label: Text("Nome: "),
+                        border: RoundInputBorder(
+                            Theme.of(context).colorScheme.primary),
+                        errorBorder: RoundInputBorder(Colors.red)),
+                    validator: (txt) {
+                      if (txt == null) {
+                        return "Campo Vazio!";
+                      } else if (txt.isEmpty) {
+                        return "Campo Vazio!";
+                      }
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Flexible(
+                        flex: 1,
+                        child: TextFormField(
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(2),
+                          ],
+                          textInputAction: TextInputAction.next,
+                          textAlign: TextAlign.center,
+                          controller: hourController,
+                          decoration: InputDecoration(
+                            suffixText: "Hs",
+                            label: Text("Horas:"),
+                            border: RoundInputBorder(
+                                Theme.of(context).colorScheme.primary),
+                            errorBorder: RoundInputBorder(Colors.red),
+                          ),
+                          // onFieldSubmitted: (txt) =>
+                          //     submitForm(),
+                          validator: (txt) {
+                            if (txt == null) {
+                              return "Campo Vazio!";
+                            } else if (txt.isEmpty) {
+                              return "Campo Vazio!";
+                            } else if (int.tryParse(txt) == null) {
+                              return "Valor Inválido";
+                            } else if (int.parse(txt) < 0) {
+                              return "Negativo!";
+                            } else if (int.parse(txt) > 24) {
+                              return "Máximo 24H!";
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      const Text(":"),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Flexible(
+                        flex: 1,
+                        child: TextFormField(
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(2),
+                          ],
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (txt) => submitForm(),
+                          textAlign: TextAlign.center,
+                          controller: minController,
+                          decoration: InputDecoration(
+                            suffixText: "min",
+                            label: Text("Mins:"),
+                            border: RoundInputBorder(
+                                Theme.of(context).colorScheme.primary),
+                            errorBorder: RoundInputBorder(Colors.red),
+                          ),
+                          validator: (txt) {
+                            if (txt == null) {
+                              return "Campo Vazio!";
+                            } else if (txt.isEmpty) {
+                              return "Campo Vazio!";
+                            } else if (int.tryParse(txt) == null) {
+                              return "Valor Inválido";
+                            } else if (int.parse(txt) == 0 &&
+                                (int.tryParse(hourController.text) ?? 0) <= 0) {
+                              return "Valor Zerado";
+                            } else if (int.parse(txt) < 0) {
+                              return "Negativo!";
+                            } else if (int.parse(txt) > 59) {
+                              return "Máximo 24min!";
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: submitForm,
+                  child: Text(service == null ? "Adicionar" : "Salvar")),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
+                  child: const Text("Cancelar")),
+            ],
+          );
+        });
   }
 
   OutlineInputBorder RoundInputBorder(Color color) {
@@ -338,5 +380,34 @@ class _ServicesScreenState extends State<ServicesScreen> {
     int hours = minutes ~/ 60;
     int minutesdif = minutes % 60;
     return "${hours.toString().padLeft(2, "0")} : ${minutesdif.toString().padLeft(2, "0")}";
+  }
+
+  void removeServiceDialog(BuildContext context, Service service) {
+    showDialog<bool>(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: const Text("Remover Serviço"),
+            content: const Text("Deseja remover permanentemente este Serviço?"),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop(true);
+                  },
+                  child: const Text("Sim")),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop(false);
+                  },
+                  child: const Text("Não"))
+            ],
+          );
+        }).then((value) {
+      if (value ?? false) {
+        Provider.of<ServicesProvider>(context, listen: false)
+            .removeObject(service);
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+    });
   }
 }

@@ -5,6 +5,7 @@ import 'package:salon_soft/models/appointment.dart';
 import 'package:salon_soft/models/client.dart';
 import 'package:salon_soft/models/service.dart';
 import 'package:salon_soft/models/worker.dart';
+import 'package:salon_soft/providers/clients_provider.dart';
 import 'package:salon_soft/providers/services_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 
@@ -32,9 +33,20 @@ void main() async {
   await DesktopWindow.setFullScreen(true);
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void dispose() async {
+    await Hive.close();
+
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -47,6 +59,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<ServicesProvider>(
           create: (ctx) {
             return ServicesProvider();
+          },
+        ),
+        ChangeNotifierProvider<ClientsProvider>(
+          create: (ctx) {
+            return ClientsProvider();
           },
         ),
       ],
