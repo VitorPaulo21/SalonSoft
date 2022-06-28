@@ -17,25 +17,28 @@ class AppointmentAdapter extends TypeAdapter<Appointment> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Appointment(
-      date: fields[0] as DateTime,
       worker: (fields[1] as HiveList).castHiveList(),
       client: (fields[2] as HiveList).castHiveList(),
       service: (fields[3] as HiveList).castHiveList(),
+      initialDate: fields[4] as DateTime,
+      endDate: fields[5] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, Appointment obj) {
     writer
-      ..writeByte(4)
-      ..writeByte(0)
-      ..write(obj.date)
+      ..writeByte(5)
       ..writeByte(1)
       ..write(obj.worker)
       ..writeByte(2)
       ..write(obj.client)
       ..writeByte(3)
-      ..write(obj.service);
+      ..write(obj.service)
+      ..writeByte(4)
+      ..write(obj.initialDate)
+      ..writeByte(5)
+      ..write(obj.endDate);
   }
 
   @override

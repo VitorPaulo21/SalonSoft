@@ -5,7 +5,9 @@ import 'package:salon_soft/models/appointment.dart';
 import 'package:salon_soft/models/client.dart';
 import 'package:salon_soft/models/service.dart';
 import 'package:salon_soft/models/worker.dart';
+import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/clients_provider.dart';
+import 'package:salon_soft/providers/date_time_provider.dart';
 import 'package:salon_soft/providers/services_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 
@@ -64,6 +66,16 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<ClientsProvider>(
           create: (ctx) {
             return ClientsProvider();
+          },
+        ),
+        ChangeNotifierProvider<DateTimeProvider>(
+          create: (ctx) {
+            return DateTimeProvider();
+          },
+        ),
+        ChangeNotifierProvider<AppointmentProvider>(
+          create: (ctx) {
+            return AppointmentProvider();
           },
         ),
       ],

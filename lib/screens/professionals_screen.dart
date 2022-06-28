@@ -236,7 +236,9 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
                       child: CircleAvatar(
                         maxRadius: 50,
                         backgroundColor:
-                            imageProfile == null ? Colors.grey[300] : null,
+                            imageProfile == null
+                            ? Colors.grey[300]
+                            : Colors.transparent,
                         foregroundImage: imageProfile != null
                             ? FileImage(imageProfile!)
                             : null,

@@ -566,7 +566,14 @@ packages:
       name: syncfusion_flutter_datepicker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "20.1.60"
+    version: "20.1.61"
+  team_calendar:
+    dependency: "direct main"
+    description:
+      path: "E:\\Workspace\\team_calendar"
+      relative: false
+    source: path
+    version: "0.0.1"
   term_glyph:
     dependency: transitive
     description:

@@ -2,8 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:provider/provider.dart';
 import 'package:salon_soft/components/titled_icon.dart';
 import 'package:salon_soft/components/titled_icon_button.dart';
+import 'package:salon_soft/providers/date_time_provider.dart';
+import 'package:salon_soft/screens/appointment_screen.dart';
 import 'package:salon_soft/screens/clients_screen.dart';
 import 'package:salon_soft/screens/professionals_screen.dart';
 import 'package:salon_soft/screens/servicesScreen.dart';
@@ -121,11 +124,11 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.max,
           children: [
             SingleChildScrollView(
-              child: SideBarSelection(),
+              child: SideBarSelection(context),
             ),
             Expanded(
                 child: screen == 0
-                    ? appointmentsScreen()
+                    ? AppointmenScreen()
                     : screen == 1
                         ? ClientsScreen()
                         : screen == 2
@@ -139,11 +142,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget appointmentsScreen() {
-    return Center();
-  }
 
-  Column SideBarSelection() {
+  Column SideBarSelection(BuildContext context) {
+    DateTimeProvider dateTimeProvider =
+        Provider.of<DateTimeProvider>(context, listen: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -174,6 +176,10 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 1440 / 6,
           child: SfDateRangePicker(
             enablePastDates: false,
+            initialSelectedDate: dateTimeProvider.currentDateTime,
+            onSelectionChanged: (dateTime) {
+              dateTimeProvider.currentDateTime = dateTime.value;
+            },
           ),
         ),
         Container(
