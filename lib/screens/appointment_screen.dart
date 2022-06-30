@@ -5,14 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
+import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 
-import 'package:team_calendar/scr/models/appointment.dart';
-import 'package:team_calendar/scr/models/header.dart';
-import 'package:team_calendar/scr/models/line.dart';
-import 'package:team_calendar/scr/models/time.dart';
-import 'package:team_calendar/team_calendar.dart';
+import '../models/appointment.dart';
+import '../models/header.dart';
+import '../models/line.dart';
+import '../models/time.dart';
+import '../team_calendar.dart';
 
 class AppointmenScreen extends StatefulWidget {
   const AppointmenScreen({Key? key}) : super(key: key);
@@ -26,6 +27,11 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
   Widget build(BuildContext context) {
     DateTimeProvider dateTimeProvider = Provider.of<DateTimeProvider>(context);
     WorkerProvider workerProvider = Provider.of<WorkerProvider>(context);
+    AppointmentProvider appointmentProvider = Provider.of<AppointmentProvider>(
+      context,
+    );
+
+    print(appointmentProvider.objects.length);
     int activeWorkersCount = workerProvider.objects
         .where((worker) => worker.isActive ?? false)
         .length;
@@ -55,7 +61,21 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
               title: worker.name,
               photoPath: worker.photoPath,
             ),
-            appointments: [],
+    
+            appointments: [
+              ...worker.appointments.map<Appointment>((appoint) {
+                print(appoint.initialDate.hour);
+                print(appoint.initialDate.minute);
+                print(appoint.endDate.hour);
+                print(appoint.endDate.minute);
+                return Appointment(
+                    title: appoint.service.first.name,
+                    start: Time(
+                        appoint.initialDate.hour, appoint.initialDate.minute),
+                    end: Time(appoint.endDate.hour, appoint.endDate.minute),
+                    onTap: () {});
+              })
+            ],
           );
         })
       ],

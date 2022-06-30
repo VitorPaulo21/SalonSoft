@@ -2,10 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/components/titled_icon.dart';
 import 'package:salon_soft/components/titled_icon_button.dart';
+import 'package:salon_soft/models/appointment.dart';
+import 'package:salon_soft/models/appointments.dart';
+import 'package:salon_soft/models/client.dart';
+import 'package:salon_soft/models/service.dart';
+import 'package:salon_soft/models/worker.dart';
+import 'package:salon_soft/providers/appointment_provider.dart';
+import 'package:salon_soft/providers/clients_provider.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
+import 'package:salon_soft/providers/services_provider.dart';
+import 'package:salon_soft/providers/worker_provider.dart';
 import 'package:salon_soft/screens/appointment_screen.dart';
 import 'package:salon_soft/screens/clients_screen.dart';
 import 'package:salon_soft/screens/professionals_screen.dart';
@@ -24,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int screen = 0;
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -144,8 +155,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Column SideBarSelection(BuildContext context) {
+    AppointmentProvider appointmentProvider =
+        Provider.of<AppointmentProvider>(context);
+    WorkerProvider workerProvider = Provider.of<WorkerProvider>(context);
+    ClientsProvider clientsProvider = Provider.of<ClientsProvider>(context);
     DateTimeProvider dateTimeProvider =
         Provider.of<DateTimeProvider>(context, listen: false);
+    ServicesProvider servicesProvider =
+        Provider.of<ServicesProvider>(context, listen: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -156,7 +173,21 @@ class _HomeScreenState extends State<HomeScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 8),
           width: 1440 / 6,
           child: ElevatedButton(
-            onPressed: () {},
+            onLongPress: () {
+              appointmentProvider.removeAllObjects();
+            },
+            onPressed: () {
+              appointmentProvider.addObject(Appointments(
+                  worker: HiveList<Worker>(Hive.box<Worker>("Workers"))
+                    ..add(workerProvider.objects.first),
+                  client: HiveList<Client>(Hive.box<Client>("clients"))
+                    ..add(clientsProvider.objects.first),
+                  service: HiveList<Service>(Hive.box<Service>("services"))
+                    ..add(servicesProvider.objects.first),
+                  initialDate: DateTime.now().add(Duration(hours: 10)),
+                  endDate:
+                      DateTime.now().add(Duration(hours: 10, minutes: 3))));
+            },
             child: const TitledIcon(
               title: "Adicionar",
               icon: Icon(Icons.calendar_month_outlined),

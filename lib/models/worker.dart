@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:salon_soft/models/appointments.dart';
 
 part 'worker.g.dart';
 
@@ -10,5 +11,24 @@ class Worker extends HiveObject {
   String photoPath;
   @HiveField(2)
   bool? isActive;
-  Worker({required this.name, this.photoPath = "", this.isActive = true});
+  late List<Appointments> appointments = [];
+
+  Worker({
+    required this.name,
+    this.photoPath = "",
+    this.isActive = true,
+  }) : super() {
+    print(appointments.length);
+  }
+
+  void syncToHive() {
+    appointments =
+        Hive.box<Appointments>("appointments").values.where((appointment) {
+      if (key != null) {
+        return appointment.worker.first.key == key;
+      } else {
+        return false;
+      }
+    }).toList();
+  }
 }

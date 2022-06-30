@@ -39,8 +39,6 @@ dependencies:
   hive_flutter: ^1.1.0
   syncfusion_flutter_charts: ^20.1.61
   # team_calendar: ^0.0.1
-  team_calendar:
-    path: E:\Workspace\team_calendar
 
 
   # The following adds the Cupertino Icons font to your application.

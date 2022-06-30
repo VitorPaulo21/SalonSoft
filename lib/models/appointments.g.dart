@@ -1,22 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'appointment.dart';
+part of 'appointments.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class AppointmentAdapter extends TypeAdapter<Appointment> {
+class AppointmentAdapter extends TypeAdapter<Appointments> {
   @override
   final int typeId = 3;
 
   @override
-  Appointment read(BinaryReader reader) {
+  Appointments read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Appointment(
+    return Appointments(
       worker: (fields[1] as HiveList).castHiveList(),
       client: (fields[2] as HiveList).castHiveList(),
       service: (fields[3] as HiveList).castHiveList(),
@@ -26,7 +26,7 @@ class AppointmentAdapter extends TypeAdapter<Appointment> {
   }
 
   @override
-  void write(BinaryWriter writer, Appointment obj) {
+  void write(BinaryWriter writer, Appointments obj) {
     writer
       ..writeByte(5)
       ..writeByte(1)

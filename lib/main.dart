@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
-import 'package:salon_soft/models/appointment.dart';
+import 'package:salon_soft/models/appointments.dart';
 import 'package:salon_soft/models/client.dart';
 import 'package:salon_soft/models/service.dart';
 import 'package:salon_soft/models/worker.dart';
@@ -25,7 +25,7 @@ void main() async {
   Hive.registerAdapter(WorkerAdapter());
   
   Hive.deleteFromDisk();
-  await Hive.openBox<Appointment>("appointments");
+  await Hive.openBox<Appointments>("appointments");
   await Hive.openBox<Client>("clients");
   await Hive.openBox<Service>("services");
   await Hive.openBox<Worker>("workers");

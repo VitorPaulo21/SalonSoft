@@ -1,33 +1,32 @@
-import 'package:hive/hive.dart';
-import 'package:salon_soft/models/client.dart';
-import 'package:salon_soft/models/service.dart';
-import 'package:salon_soft/models/worker.dart';
+import 'package:flutter/material.dart';
+import '../models/time.dart';
 
-part 'appointment.g.dart';
-
-@HiveType(typeId: 3)
-class Appointment extends HiveObject {
-  // @HiveField(0)
-  // DateTime date;
-  @HiveField(1)
-  HiveList<Worker> worker;
-  @HiveField(2)
-  HiveList<Client> client;
-  @HiveField(3)
-  HiveList<Service> service;
-  @HiveField(4)
-  DateTime initialDate;
-  @HiveField(5)
-  DateTime endDate;
-
-
+class Appointment {
+  final String title;
+  final String subtitle;
+  final Time start;
+  final Time end;
+  final EdgeInsets padding;
+  final EdgeInsets margin;
+  final VoidCallback onTap;
+  final BoxDecoration decoration;
+  final Color color;
+  final TextStyle textStyle;
+  final TextStyle subtitleStyle;
 
   Appointment({
-    
-    required this.worker,
-    required this.client,
-    required this.service,
-    required this.initialDate,
-    required this.endDate,
+    required this.title,
+    this.subtitle = "",
+    required this.start,
+    required this.end,
+    this.padding = const EdgeInsets.all(10),
+    this.margin = const EdgeInsets.all(0),
+    required this.onTap,
+    this.decoration = const BoxDecoration(),
+    this.color = const Color(0xFF323D6C),
+    this.textStyle = const TextStyle(
+        color: Color(0xFF535353), fontSize: 11, fontWeight: FontWeight.w400),
+    this.subtitleStyle =
+        const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF363636)),
   });
 }

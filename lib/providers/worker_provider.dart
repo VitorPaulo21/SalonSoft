@@ -10,6 +10,13 @@ class WorkerProvider extends CrudHiveProviderInterface<Worker> {
 
   WorkerProvider() : super(boxName: "workers");
 
+  @override
+  void syncToHive() async {
+    objectsPrivate.addAll(Hive.box<Worker>("workers").values);
+    objectsPrivate.forEach((element) {
+      element.syncToHive();
+    });
+  }
 
   @override
   void removeAllObjects() {
