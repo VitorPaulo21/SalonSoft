@@ -184,9 +184,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ..add(clientsProvider.objects.first),
                   service: HiveList<Service>(Hive.box<Service>("services"))
                     ..add(servicesProvider.objects.first),
-                  initialDate: DateTime.now().add(Duration(hours: 10)),
+                  initialDate: DateTime.now(),
                   endDate:
-                      DateTime.now().add(Duration(hours: 10, minutes: 3))));
+                      DateTime.now().add(Duration(hours: 0, minutes: 30))));
             },
             child: const TitledIcon(
               title: "Adicionar",

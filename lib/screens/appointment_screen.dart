@@ -50,13 +50,15 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
       timeSlotWidth: 45,
       timeSlotHeight: 60,
       startTime: Time(07, 00),
-      endTime: Time(22, 00),
+      endTime: Time(23, 59),
       timeSlot: TimeSlot.fifteen,
+
       resources: [
         ...workerProvider.objects
             .where((worker) => worker.isActive ?? false)
             .map<Line>((worker) {
           return Line(
+
             header: Header(
               title: worker.name,
               photoPath: worker.photoPath,
@@ -69,10 +71,10 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
                 print(appoint.endDate.hour);
                 print(appoint.endDate.minute);
                 return Appointment(
+
                     title: appoint.service.first.name,
-                    start: Time(
-                        appoint.initialDate.hour, appoint.initialDate.minute),
-                    end: Time(appoint.endDate.hour, appoint.endDate.minute),
+                    start: Time(7, 0),
+                    end: Time(9, 0),
                     onTap: () {});
               })
             ],
