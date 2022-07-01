@@ -28,7 +28,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
   Widget build(BuildContext context) {
     
     WorkerProvider workerProvider = Provider.of<WorkerProvider>(context);
-    print("build called");
+    
     return GridView(
       padding: const EdgeInsets.all(10.0),
       shrinkWrap: true,
@@ -44,7 +44,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
         addWorkerGridItem(context),
         ...workerProvider.objects
             .map<Widget>((worker) {
-          print(worker.photoPath);
+        
           return Card(
             elevation: 5,
             shape: const RoundedRectangleBorder(

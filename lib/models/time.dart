@@ -4,6 +4,7 @@ class Time {
   const Time(this.hour, this.min) : assert(hour < 24 && min < 60);
 
   String refactor(int times, int add) {
+    
     switch (times) {
       case 1:
         return stringify(hour + add) + ":" + stringify(min);

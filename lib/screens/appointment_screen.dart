@@ -31,7 +31,7 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
       context,
     );
 
-    print(appointmentProvider.objects.length);
+   
     int activeWorkersCount = workerProvider.objects
         .where((worker) => worker.isActive ?? false)
         .length;
@@ -48,10 +48,10 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
         Provider.of<WorkerProvider>(context, listen: false);
     return TeamCalendar(
       timeSlotWidth: 45,
-      timeSlotHeight: 60,
+      timeSlotHeight: 55,
       startTime: Time(07, 00),
       endTime: Time(23, 59),
-      timeSlot: TimeSlot.fifteen,
+      timeSlot: TimeSlot.thirteen,
 
       resources: [
         ...workerProvider.objects
@@ -66,15 +66,12 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
     
             appointments: [
               ...worker.appointments.map<Appointment>((appoint) {
-                print(appoint.initialDate.hour);
-                print(appoint.initialDate.minute);
-                print(appoint.endDate.hour);
-                print(appoint.endDate.minute);
+          
                 return Appointment(
-
+                    appoint,
                     title: appoint.service.first.name,
-                    start: Time(7, 0),
-                    end: Time(9, 0),
+                    start: Time(9, 0),
+                    end: Time(9, 30),
                     onTap: () {});
               })
             ],

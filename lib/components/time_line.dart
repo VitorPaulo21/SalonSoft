@@ -27,6 +27,7 @@ class TimeLineComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return Container(
       width: width,
       decoration: BoxDecoration(
@@ -54,8 +55,15 @@ class TimeLineComponent extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   for (var i = 1; i <= Slot.calc(timeSlot); i++)
+                  
                     Text(
-                      startTime.refactor(i, index),
+                      startTime.refactor(
+                          Slot.calc(timeSlot) == 2
+                              ? i == 2
+                                  ? 3
+                                  : i
+                              : i,
+                          index),
                       style: TextStyle(
                           color: Colors.black.withOpacity(0.6), fontSize: 12),
                     )
