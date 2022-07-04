@@ -15,6 +15,7 @@ class Appointment extends Appointments {
   final TextStyle textStyle;
   final TextStyle subtitleStyle;
 
+
   Appointment(
     Appointments appointments, {
     required this.title,
@@ -30,6 +31,7 @@ class Appointment extends Appointments {
         color: Color(0xFF535353), fontSize: 11, fontWeight: FontWeight.w400),
     this.subtitleStyle =
         const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF363636)),
+   
   }) : super(
           client: appointments.client,
           endDate: appointments.endDate,

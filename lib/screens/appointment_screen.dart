@@ -70,8 +70,9 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
                 return Appointment(
                     appoint,
                     title: appoint.service.first.name,
-                    start: Time(9, 0),
-                    end: Time(9, 30),
+                    start: Time(
+                        appoint.initialDate.hour, appoint.initialDate.minute),
+                    end: Time(appoint.endDate.hour, appoint.endDate.minute),
                     onTap: () {});
               })
             ],

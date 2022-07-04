@@ -50,7 +50,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Card(
@@ -62,7 +62,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     height: 300,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 15,
                 ),
                 Card(

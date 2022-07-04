@@ -382,6 +382,9 @@ class _HomeScreenState extends State<HomeScreen> {
         Provider.of<ClientsProvider>(context, listen: false);
     ServicesProvider servicesProvider =
         Provider.of<ServicesProvider>(context, listen: false);
+    GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    bool triedToValidate = false;
+
     return showDialog(
         context: context,
         builder: (context) {
@@ -390,12 +393,41 @@ class _HomeScreenState extends State<HomeScreen> {
           TextEditingController servicetextController = TextEditingController();
           TextEditingController obsController = TextEditingController();
 
-          GlobalKey<FormState> formKey = GlobalKey<FormState>();
           return StatefulBuilder(
             builder: (context, setState) {
+              void submitForm() {
+                bool isValid = formKey.currentState?.validate() ?? false;
+                if (isValid) {
+                  Provider.of<AppointmentProvider>(context, listen: false)
+                      .addObject(
+                    Appointments(
+                      worker: HiveList(Hive.box<Worker>("workers"))
+                        ..add(currentWorker!),
+                      client: HiveList(Hive.box<Client>("clients"))
+                        ..add(currentClient!),
+                      service: HiveList(Hive.box<Service>("services"))
+                        ..add(currentService!),
+                      initialDate: DateTime.now(),
+                      endDate: DateTime.now().add(currentService!.duration),
+                      description: obsController.text,
+                    ),
+                  );
+                  Navigator.of(context, rootNavigator: true).pop();
+                } else {
+                  setState(() {
+                    triedToValidate = true;
+                  });
+                }
+              }
+
               List<EnhanceStep> steps = [
                 EnhanceStep(
                   isActive: true,
+                  state: triedToValidate && currentWorker != null
+                      ? StepState.complete
+                      : triedToValidate
+                          ? StepState.error
+                          : StepState.indexed,
                   title: Text(currentWorker == null
                       ? "Profissional"
                       : "Profissional - ${currentWorker!.name}"),
@@ -407,6 +439,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 EnhanceStep(
                   isActive: true,
+                  state: triedToValidate && currentClient != null
+                      ? StepState.complete
+                      : triedToValidate
+                          ? StepState.error
+                          : StepState.indexed,
                   title: Text(currentClient == null
                       ? "Cliente"
                       : "Cliente - ${currentClient!.name}"),
@@ -418,6 +455,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 EnhanceStep(
                     isActive: true,
+                    state: triedToValidate && currentService != null
+                        ? StepState.complete
+                        : triedToValidate
+                            ? StepState.error
+                            : StepState.indexed,
                     title: Text(currentService == null
                         ? "Serviço"
                         : "Serviço - ${currentService!.name}"),
@@ -445,6 +487,99 @@ class _HomeScreenState extends State<HomeScreen> {
                         )
                       ],
                     )),
+                EnhanceStep(
+                    title: const Text("Horário"),
+                    icon: const Icon(Icons.calendar_month_outlined),
+                    content: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                            leading:
+                                Checkbox(value: true, onChanged: (value) {}),
+                            title: Text("Próximo horário disponivel"),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Expanded(
+                                child: TypeAheadFormField<int>(
+                                    onSuggestionSelected: (hour) {},
+                                    itemBuilder: (ctx, hour) {
+                                      return Text(hour.toString());
+                                    },
+                                    suggestionsCallback: (query) {
+                                      return [];
+                                    },
+                                    textFieldConfiguration:
+                                        TextFieldConfiguration(
+                                            textAlign: TextAlign.center,
+                                            decoration: InputDecoration(
+                                                label: Text("Horas: "),
+                                                // suffixIcon: valueController.text.isEmpty
+                                                //     ? null
+                                                //     : GestureDetector(
+                                                //         onTap: () {
+                                                //           valueController.text = "";
+                                                //         },
+                                                //         child: Icon(
+                                                //           Icons.close,
+                                                //           color: Colors.red,
+                                                //         ),
+                                                //       ),
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15))))),
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              const Text(":"),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Expanded(
+                                child: TypeAheadFormField<int>(
+                                    onSuggestionSelected: (hour) {},
+                                    itemBuilder: (ctx, hour) {
+                                      return Text(hour.toString());
+                                    },
+                                    suggestionsCallback: (query) {
+                                      return [];
+                                    },
+                                    textFieldConfiguration:
+                                        TextFieldConfiguration(
+                                            textAlign: TextAlign.center,
+                                            decoration: InputDecoration(
+                                                label: Text("Minutos: "),
+                                                // suffixIcon: valueController.text.isEmpty
+                                                //     ? null
+                                                //     : GestureDetector(
+                                                //         onTap: () {
+                                                //           valueController.text = "";
+                                                //         },
+                                                //         child: Icon(
+                                                //           Icons.close,
+                                                //           color: Colors.red,
+                                                //         ),
+                                                //       ),
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15))))),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ))
               ];
               print(currentWorker.toString());
               return AlertDialog(
@@ -455,7 +590,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Form(
                     key: formKey,
                     child: EnhanceStepper(
-                      
                       physics: ClampingScrollPhysics(),
                       stepIconSize: 25,
                       horizontalLinePosition: HorizontalLinePosition.top,
@@ -465,7 +599,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       steps: steps,
                       onStepCancel: () {
                         setState(() {
-                          if (currentStep < 2) {
+                          if (currentStep < 3) {
                             currentStep++;
                           } else {
                             currentStep = 0;
@@ -474,7 +608,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       onStepContinue: () {
                         setState(() {
-                          if (currentStep < 2) {
+                          if (currentStep < 3) {
                             currentStep++;
                           }
                         });
@@ -488,15 +622,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 actions: [
-                  
                   ElevatedButton(
                       onPressed: () {
                         Navigator.of(context, rootNavigator: true).pop();
                       },
                       child: Text("Cancelar"),
                       style: ElevatedButton.styleFrom(primary: Colors.red)),
-                      ElevatedButton(
-                    onPressed: () {},
+                  ElevatedButton(
+                    onPressed: submitForm,
                     child: Text("Adicionar"),
                     style: ElevatedButton.styleFrom(primary: Colors.green),
                   ),

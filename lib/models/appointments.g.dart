@@ -23,13 +23,14 @@ class AppointmentsAdapter extends TypeAdapter<Appointments> {
       initialDate: fields[4] as DateTime,
       endDate: fields[5] as DateTime,
       description: fields[6] as String?,
+      situation: fields[7] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Appointments obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(1)
       ..write(obj.worker)
       ..writeByte(2)
@@ -41,7 +42,9 @@ class AppointmentsAdapter extends TypeAdapter<Appointments> {
       ..writeByte(5)
       ..write(obj.endDate)
       ..writeByte(6)
-      ..write(obj.description);
+      ..write(obj.description)
+      ..writeByte(7)
+      ..write(obj.situation);
   }
 
   @override

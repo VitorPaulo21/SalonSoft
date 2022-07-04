@@ -5,8 +5,9 @@ import '../models/appointments.dart';
 import '../models/worker.dart';
 
 class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
-  AppointmentProvider() : super(boxName: "appointments");
+  AppointmentProvider() : super(boxName: "appointments") {}
 
+ 
   @override
   void addObject(Appointments appointment) {
     Worker worker = appointment.worker.first;

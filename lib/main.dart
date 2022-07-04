@@ -29,6 +29,7 @@ void main() async {
   await Hive.openBox<Client>("clients");
   await Hive.openBox<Service>("services");
   await Hive.openBox<Worker>("workers");
+  
   runApp(const MyApp());
   await DesktopWindow.setMaxWindowSize(Size(3840, 2160));
   await DesktopWindow.setMinWindowSize(Size(854, 480));
