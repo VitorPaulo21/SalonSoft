@@ -455,6 +455,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Form(
                     key: formKey,
                     child: EnhanceStepper(
+                      
                       physics: ClampingScrollPhysics(),
                       stepIconSize: 25,
                       horizontalLinePosition: HorizontalLinePosition.top,
