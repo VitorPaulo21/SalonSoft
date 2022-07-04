@@ -19,7 +19,7 @@ import 'package:desktop_window/desktop_window.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  Hive.registerAdapter(AppointmentAdapter());
+  Hive.registerAdapter(AppointmentsAdapter());
   Hive.registerAdapter(ClientAdapter());
   Hive.registerAdapter(ServiceAdapter());
   Hive.registerAdapter(WorkerAdapter());

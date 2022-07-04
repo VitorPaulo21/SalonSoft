@@ -31,4 +31,9 @@ class Worker extends HiveObject {
       }
     }).toList();
   }
+
+  @override
+  String toString() {
+    return name;
+  }
 }

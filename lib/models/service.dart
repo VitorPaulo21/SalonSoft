@@ -9,4 +9,8 @@ class Service extends HiveObject {
   Duration duration;
 
   Service({required this.name, required this.duration});
+  @override
+  String toString() {
+    return name;
+  }
 }

@@ -61,40 +61,54 @@ class _ClientsScreenState extends State<ClientsScreen> {
   Widget clientGridItem(BuildContext context, int index) {
     return Stack(
       children: [
-        Card(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(15),
-            ),
-          ),
-          elevation: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, top: 8, right: 8),
-                child: FittedBox(
-                  child: Text(
-                    clients[index - 1].name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
+        Stack(
+          children: [
+            Card(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(15),
                 ),
               ),
-              CircularPercentageChart(
-                  allValue: 250,
-                  percentageValue: Random().nextInt(250),
-                  allvalueLegend: "Atendimentos",
-                  percentualValueLegend: "Este Cliente"),
-              FittedBox(
-                child: Text(
-                    "Valor Gasto: R\$${Random().nextInt(1000).toStringAsFixed(2)}"),
-              )
-            ],
-          ),
+              elevation: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 8, right: 8),
+                    child: FittedBox(
+                      child: Text(
+                        clients[index - 1].name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                  CircularPercentageChart(
+                      allValue: 250,
+                      percentageValue: Random().nextInt(250),
+                      allvalueLegend: "Atendimentos",
+                      percentualValueLegend: "Este Cliente"),
+                  FittedBox(
+                    child: Text(
+                        "Valor Gasto: R\$${Random().nextInt(1000).toStringAsFixed(2)}"),
+                  )
+                ],
+              ),
+            ),
+            const Positioned(
+              child: Icon(
+                Icons.settings,
+                size: 17,
+                color: Colors.grey,
+              ),
+              top: 10,
+              right: 10,
+            )
+          ],
         ),
+        
         Positioned.fill(
             child: MaterialButton(
           shape: const RoundedRectangleBorder(

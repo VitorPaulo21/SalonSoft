@@ -7,4 +7,9 @@ class Client extends HiveObject {
   String name;
 
   Client({required this.name});
+
+  @override
+  String toString() {
+    return name;
+  }
 }

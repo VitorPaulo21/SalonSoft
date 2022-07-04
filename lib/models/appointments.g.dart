@@ -6,7 +6,7 @@ part of 'appointments.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class AppointmentAdapter extends TypeAdapter<Appointments> {
+class AppointmentsAdapter extends TypeAdapter<Appointments> {
   @override
   final int typeId = 3;
 
@@ -22,13 +22,14 @@ class AppointmentAdapter extends TypeAdapter<Appointments> {
       service: (fields[3] as HiveList).castHiveList(),
       initialDate: fields[4] as DateTime,
       endDate: fields[5] as DateTime,
+      description: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Appointments obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(1)
       ..write(obj.worker)
       ..writeByte(2)
@@ -38,7 +39,9 @@ class AppointmentAdapter extends TypeAdapter<Appointments> {
       ..writeByte(4)
       ..write(obj.initialDate)
       ..writeByte(5)
-      ..write(obj.endDate);
+      ..write(obj.endDate)
+      ..writeByte(6)
+      ..write(obj.description);
   }
 
   @override
@@ -47,7 +50,7 @@ class AppointmentAdapter extends TypeAdapter<Appointments> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AppointmentAdapter &&
+      other is AppointmentsAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

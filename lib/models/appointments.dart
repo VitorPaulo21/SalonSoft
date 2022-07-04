@@ -19,6 +19,8 @@ class Appointments extends HiveObject {
   DateTime initialDate;
   @HiveField(5)
   DateTime endDate;
+  @HiveField(6)
+  String? description;
 
   Appointments({
     required this.worker,
@@ -26,5 +28,6 @@ class Appointments extends HiveObject {
     required this.service,
     required this.initialDate,
     required this.endDate,
+      this.description = ""
   });
 }

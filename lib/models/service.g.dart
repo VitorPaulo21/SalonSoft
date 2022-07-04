@@ -29,7 +29,7 @@ class ServiceAdapter extends TypeAdapter<Service> {
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.duration.inMinutes);
+      ..write(obj.duration);
   }
 
   @override
