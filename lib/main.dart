@@ -4,11 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:salon_soft/models/appointments.dart';
 import 'package:salon_soft/models/client.dart';
 import 'package:salon_soft/models/service.dart';
+import 'package:salon_soft/models/settings.dart';
 import 'package:salon_soft/models/worker.dart';
 import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/clients_provider.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
 import 'package:salon_soft/providers/services_provider.dart';
+import 'package:salon_soft/providers/settings_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 
 import 'package:salon_soft/screens/home_screen.dart';
@@ -23,12 +25,13 @@ void main() async {
   Hive.registerAdapter(ClientAdapter());
   Hive.registerAdapter(ServiceAdapter());
   Hive.registerAdapter(WorkerAdapter());
-  
-  Hive.deleteFromDisk();
+  Hive.registerAdapter(settingsAdapter());
+
   await Hive.openBox<Appointments>("appointments");
   await Hive.openBox<Client>("clients");
   await Hive.openBox<Service>("services");
   await Hive.openBox<Worker>("workers");
+  await Hive.openBox<Settings>("settings");
   
   runApp(const MyApp());
   await DesktopWindow.setMaxWindowSize(Size(3840, 2160));
@@ -74,10 +77,16 @@ class _MyAppState extends State<MyApp> {
             return DateTimeProvider();
           },
         ),
-        ChangeNotifierProvider<AppointmentProvider>(
+        ChangeNotifierProvider<SettingsProvider>(
           create: (ctx) {
-            return AppointmentProvider();
+            return SettingsProvider();
           },
+        ),
+        ChangeNotifierProxyProvider<SettingsProvider, AppointmentProvider>(
+          create: (ctx) {
+            return AppointmentProvider(null);
+          },
+          update: (ctx, settings, appointment) => AppointmentProvider(settings),
         ),
       ],
       child: MaterialApp(

@@ -382,6 +382,10 @@ class _HomeScreenState extends State<HomeScreen> {
         Provider.of<ClientsProvider>(context, listen: false);
     ServicesProvider servicesProvider =
         Provider.of<ServicesProvider>(context, listen: false);
+    AppointmentProvider appointmentProvider =
+        Provider.of<AppointmentProvider>(context, listen: false);
+    DateTimeProvider dateTimeProvider =
+        Provider.of<DateTimeProvider>(context, listen: false);
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
     bool triedToValidate = false;
 
@@ -510,12 +514,25 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Expanded(
                                 child: TypeAheadFormField<int>(
+                                  
                                     onSuggestionSelected: (hour) {},
                                     itemBuilder: (ctx, hour) {
-                                      return Text(hour.toString());
+                                      return Text(
+                                          hour.toString().padLeft(2, "0"));
                                     },
                                     suggestionsCallback: (query) {
-                                      return [];
+                                      return query.isEmpty
+                                          ? appointmentProvider
+                                              .avaliableHoursByDate(
+                                                  dateTimeProvider
+                                                      .currentDateTime)
+                                          : appointmentProvider
+                                              .avaliableHoursByDate(
+                                                  dateTimeProvider
+                                                      .currentDateTime)
+                                              .where((hour) =>
+                                                  hour ==
+                                                  (int.tryParse(query) ?? -1));
                                     },
                                     textFieldConfiguration:
                                         TextFieldConfiguration(
