@@ -1,5 +1,8 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:salon_soft/Interfaces/crud_hive_provider_interface.dart';
+import 'package:salon_soft/models/appointment.dart';
+import 'package:salon_soft/models/service.dart';
 import 'package:salon_soft/models/settings.dart';
 import 'package:salon_soft/providers/settings_provider.dart';
 
@@ -74,5 +77,49 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
       {required DateTime date, required int hour}) {
     List<int> avaliableMinutes = List<int>.generate(59, (index) => index);
     return avaliableMinutes;
+  }
+
+  List<DateTime> avaliableHoursByServiceAtDate(
+      {required DateTime date, required Service service}) {
+    List<DateTime> avaliableDates = [];
+    DateTime currentDateTime = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      settingsProvider!.objectPrivate.openHour,
+      settingsProvider!.objectPrivate.openMinute,
+    );
+    //Adicionando Todas as Datas para as Avaliables datas de
+    //acordo com a hora de abertura e fechamento com o intervalo pre definido
+    print("Hora de Abertura " +
+        settingsProvider!.objectPrivate.openHour.toString());
+    print("Hora de Fechamento " +
+        settingsProvider!.objectPrivate.closeHour.toString());
+    for (int i = settingsProvider!.objectPrivate.openHour;
+        i <=
+            (settingsProvider!.objectPrivate.closeHour *
+                (60 / settingsProvider!.objectPrivate.intervalOfMinutes));
+        i++) {
+      avaliableDates.add(currentDateTime);
+      currentDateTime = currentDateTime.add(
+          Duration(minutes: settingsProvider!.objectPrivate.intervalOfMinutes));
+    }
+    print(avaliableDates.length.toString() + " Primeiro datas disponivel");
+    avaliableDates.removeWhere((dateTime) {
+      DateTime toCheckDate = DateTime(
+        dateTime.year,
+        dateTime.month,
+        dateTime.day,
+        dateTime.hour,
+        dateTime.minute,
+      );
+      print(DateFormat("dd/MM/yyyy HH:mm").format(toCheckDate));
+      toCheckDate = toCheckDate.add(service.duration);
+      return objects.any((appointment) =>
+          appointment.initialDate.isBefore(toCheckDate) &&
+          appointment.endDate.isAfter(toCheckDate));
+    });
+
+    return avaliableDates;
   }
 }

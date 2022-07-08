@@ -25,7 +25,7 @@ void main() async {
   Hive.registerAdapter(ClientAdapter());
   Hive.registerAdapter(ServiceAdapter());
   Hive.registerAdapter(WorkerAdapter());
-  Hive.registerAdapter(settingsAdapter());
+  Hive.registerAdapter(SettingsAdapter());
 
   await Hive.openBox<Appointments>("appointments");
   await Hive.openBox<Client>("clients");

@@ -6,7 +6,7 @@ part of 'settings.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class settingsAdapter extends TypeAdapter<Settings> {
+class SettingsAdapter extends TypeAdapter<Settings> {
   @override
   final int typeId = 4;
 
@@ -21,13 +21,14 @@ class settingsAdapter extends TypeAdapter<Settings> {
       closeMinute: fields[3] as int,
       openHour: fields[0] as int,
       openMinute: fields[1] as int,
+      intervalOfMinutes: fields[4] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Settings obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.openHour)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class settingsAdapter extends TypeAdapter<Settings> {
       ..writeByte(2)
       ..write(obj.closeHour)
       ..writeByte(3)
-      ..write(obj.closeMinute);
+      ..write(obj.closeMinute)
+      ..writeByte(4)
+      ..write(obj.intervalOfMinutes);
   }
 
   @override
@@ -44,7 +47,7 @@ class settingsAdapter extends TypeAdapter<Settings> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is settingsAdapter &&
+      other is SettingsAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -12,11 +12,15 @@ class Settings extends HiveObject {
   int closeHour;
   @HiveField(3)
   int closeMinute;
+  @HiveField(4)
+  int intervalOfMinutes;
+
 
   Settings({
     required this.closeHour,
     required this.closeMinute,
     required this.openHour,
     required this.openMinute,
+    required this.intervalOfMinutes,
   });
 }

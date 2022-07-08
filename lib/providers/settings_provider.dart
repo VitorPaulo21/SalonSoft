@@ -7,5 +7,9 @@ class SettingsProvider extends CrudHiveSingleProviderInterface<Settings> {
       : super(
             boxName: "settings",
             initialObjectValue: Settings(
-                closeHour: 23, closeMinute: 59, openHour: 0, openMinute: 0));
+                closeHour: 23,
+                closeMinute: 59,
+                openHour: 0,
+                openMinute: 0,
+                intervalOfMinutes: 30));
 }

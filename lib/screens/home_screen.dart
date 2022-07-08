@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/components/titled_icon.dart';
 import 'package:salon_soft/components/titled_icon_button.dart';
@@ -513,26 +514,35 @@ class _HomeScreenState extends State<HomeScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Expanded(
-                                child: TypeAheadFormField<int>(
-                                  
+                                child: TypeAheadFormField<String>(
                                     onSuggestionSelected: (hour) {},
                                     itemBuilder: (ctx, hour) {
-                                      return Text(
-                                          hour.toString().padLeft(2, "0"));
+                                      return Text(hour);
                                     },
                                     suggestionsCallback: (query) {
-                                      return query.isEmpty
-                                          ? appointmentProvider
-                                              .avaliableHoursByDate(
-                                                  dateTimeProvider
-                                                      .currentDateTime)
+                                      return currentService == null
+                                          ? []
                                           : appointmentProvider
-                                              .avaliableHoursByDate(
-                                                  dateTimeProvider
-                                                      .currentDateTime)
-                                              .where((hour) =>
-                                                  hour ==
-                                                  (int.tryParse(query) ?? -1));
+                                              .avaliableHoursByServiceAtDate(
+                                                date: dateTimeProvider
+                                                    .currentDateTime,
+                                                service: currentService!,
+                                              )
+                                              .where(
+                                                (date) => query.isEmpty
+                                                    ? true
+                                                    : DateFormat("HH")
+                                                        .format(date)
+                                                        .contains(
+                                                          (int.tryParse(
+                                                                      query) ??
+                                                                  -1)
+                                                              .toString(),
+                                                        ),
+                                              )
+                                              .map<String>((date) =>
+                                                  DateFormat("HH").format(date))
+                                              .toSet();
                                     },
                                     textFieldConfiguration:
                                         TextFieldConfiguration(
