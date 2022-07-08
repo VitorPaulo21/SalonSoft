@@ -62,6 +62,7 @@ class LineComponent extends StatelessWidget {
           child: ScrollConfiguration(
             behavior: NoSwipeScroll(),
             child: SingleChildScrollView(
+             
               controller: scroll,
               child: ListView(
                 shrinkWrap: true,
@@ -95,124 +96,7 @@ class LineComponent extends StatelessWidget {
                       ),
                       
                       for (Appointment appointment in line.appointments)
-                        Positioned(
-                            top: (convertTimeToMinutes(appointment.start) -
-                                    convertTimeToMinutes(startTime)) *
-                                heighPerMinute,
-                            width: width,
-                            height: (convertTimeToMinutes(appointment.end) -
-                                    convertTimeToMinutes(appointment.start)) *
-                                heighPerMinute,
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              elevation: 5,
-                              margin: EdgeInsets.symmetric(horizontal: 5),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  color: Colors.indigo.withAlpha(110),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Stack(
-                                    children: [
-                                      SingleChildScrollView(
-                                        controller: ScrollController(),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            if ((convertTimeToMinutes(
-                                                            appointment.end) -
-                                                        convertTimeToMinutes(
-                                                            appointment
-                                                                .start)) *
-                                                    heighPerMinute >=
-                                                timeSlotHeight)
-                                              SizedBox(
-                                                height: timeSlotHeight,
-                                                child: ListTile(
-                                                  leading:
-                                                      Icon(Icons.work_outline),
-                                                  title: Text(
-                                                    appointment.title,
-                                                    softWrap: false,
-                                                  ),
-                                                  subtitle: Text(
-                                                    "${appointment.start.hour.toString().padLeft(2, "0")}:${appointment.start.min.toString().padLeft(2, "0")} ás ${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.min.toString().padLeft(2, "0")}",
-                                                    softWrap: false,
-                                                  ),
-                                                ),
-                                              ),
-                                            if ((convertTimeToMinutes(
-                                                            appointment.end) -
-                                                        convertTimeToMinutes(
-                                                            appointment
-                                                                .start)) *
-                                                    heighPerMinute >=
-                                                timeSlotHeight)
-                                              SizedBox(
-                                                height: timeSlotHeight,
-                                                child: ListTile(
-                                                  leading: Icon(
-                                                      Icons.person_outline),
-                                                  title: Text(
-                                                    "Cliente:",
-                                                    softWrap: false,
-                                                  ),
-                                                  subtitle: Text(
-                                                    appointment
-                                                        .client.first.name,
-                                                    softWrap: false,
-                                                  ),
-                                                ),
-                                              ),
-                                            if (!((convertTimeToMinutes(
-                                                            appointment.end) -
-                                                        convertTimeToMinutes(
-                                                            appointment
-                                                                .start)) *
-                                                    heighPerMinute >=
-                                                timeSlotHeight))
-                                              Baseline(
-                                                baseline: 18,
-                                                baselineType:
-                                                    TextBaseline.alphabetic,
-                                                child: Container(
-                                                    height:
-                                                        (convertTimeToMinutes(
-                                                                appointment
-                                                                    .end) -
-                                                            convertTimeToMinutes(
-                                                                appointment
-                                                                    .start)),
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 16),
-                                                    child: Text(
-                                                        appointment.title)),
-                                              )
-                                          ],
-                                        ),
-                                      ),
-                                      const Positioned(
-                                        child: Icon(
-                                          Icons.edit_note,
-                                          size: 25,
-                                        ),
-                                        top: 6,
-                                        right: 6,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ))
+                        GridItem(appointment, heighPerMinute)
                       // Card(
                       //   shape: RoundedRectangleBorder(
                       //       borderRadius: BorderRadius.circular(15)),
@@ -240,10 +124,7 @@ class LineComponent extends StatelessWidget {
                       //   ),
                       // )
                     ],
-                  )
-                    ,
-                  
-                  
+                  ),
                 ],
               ),
             ),
@@ -259,5 +140,103 @@ class LineComponent extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Positioned GridItem(Appointment appointment, double heighPerMinute) {
+    final ScrollController controller = ScrollController();
+    return Positioned(
+        top: (convertTimeToMinutes(appointment.start) -
+                convertTimeToMinutes(startTime)) *
+            heighPerMinute,
+        width: width,
+        height: (convertTimeToMinutes(appointment.end) -
+                convertTimeToMinutes(appointment.start)) *
+            heighPerMinute,
+        child: Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          elevation: 5,
+          margin: EdgeInsets.symmetric(horizontal: 5),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: Colors.indigo.withAlpha(110),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                  
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if ((convertTimeToMinutes(appointment.end) -
+                                    convertTimeToMinutes(appointment.start)) *
+                                heighPerMinute >=
+                            timeSlotHeight)
+                          SizedBox(
+                            height: timeSlotHeight,
+                            child: ListTile(
+                              leading: Icon(Icons.work_outline),
+                              title: Text(
+                                appointment.title,
+                                softWrap: false,
+                              ),
+                              subtitle: Text(
+                                "${appointment.start.hour.toString().padLeft(2, "0")}:${appointment.start.min.toString().padLeft(2, "0")} ás ${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.min.toString().padLeft(2, "0")}",
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        if ((convertTimeToMinutes(appointment.end) -
+                                    convertTimeToMinutes(appointment.start)) *
+                                heighPerMinute >=
+                            timeSlotHeight)
+                          SizedBox(
+                            height: timeSlotHeight,
+                            child: ListTile(
+                              leading: Icon(Icons.person_outline),
+                              title: Text(
+                                "Cliente:",
+                                softWrap: false,
+                              ),
+                              subtitle: Text(
+                                appointment.client.first.name,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        if (!((convertTimeToMinutes(appointment.end) -
+                                    convertTimeToMinutes(appointment.start)) *
+                                heighPerMinute >=
+                            timeSlotHeight))
+                          Baseline(
+                            baseline: 18,
+                            baselineType: TextBaseline.alphabetic,
+                            child: Container(
+                                height: (convertTimeToMinutes(appointment.end) -
+                                    convertTimeToMinutes(appointment.start)),
+                                alignment: Alignment.centerLeft,
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(appointment.title)),
+                          )
+                      ],
+                    ),
+                  ),
+                  const Positioned(
+                    child: Icon(
+                      Icons.edit_note,
+                      size: 25,
+                    ),
+                    top: 6,
+                    right: 6,
+                  )
+                ],
+              ),
+            ),
+          ),
+        ));
   }
 }

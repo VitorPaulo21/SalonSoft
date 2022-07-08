@@ -397,6 +397,9 @@ class _HomeScreenState extends State<HomeScreen> {
           TextEditingController clientTextController = TextEditingController();
           TextEditingController servicetextController = TextEditingController();
           TextEditingController obsController = TextEditingController();
+          TextEditingController hourController = TextEditingController();
+          TextEditingController minuteController = TextEditingController();
+          bool nextAvaliableHour = true;
 
           return StatefulBuilder(
             builder: (context, setState) {
@@ -501,21 +504,34 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 0),
-                            leading:
-                                Checkbox(value: true, onChanged: (value) {}),
-                            title: Text("Próximo horário disponivel"),
-                          ),
+                          if (currentService == null && currentWorker == null)
+                            const Text(
+                                "Por favor preencha as informações anteriores"),
+                          if (currentService != null && currentWorker != null)
+                            ListTile(
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 0),
+                              leading: Checkbox(
+                                  value: nextAvaliableHour,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      nextAvaliableHour = value ?? false;
+                                    });
+                                  }),
+                              title: Text("Próximo horário disponivel"),
+                            ),
                           const SizedBox(
                             height: 10,
                           ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Expanded(
-                                child: TypeAheadFormField<String>(
-                                    onSuggestionSelected: (hour) {},
+                          if (currentService != null && currentWorker != null)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Expanded(
+                                  child: TypeAheadFormField<String>(
+                                    onSuggestionSelected: (hour) {
+                                      hourController.text = hour;
+                                    },
                                     itemBuilder: (ctx, hour) {
                                       return Text(hour);
                                     },
@@ -524,10 +540,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ? []
                                           : appointmentProvider
                                               .avaliableHoursByServiceAtDate(
-                                                date: dateTimeProvider
-                                                    .currentDateTime,
-                                                service: currentService!,
-                                              )
+                                                  date: dateTimeProvider
+                                                      .currentDateTime,
+                                                  service: currentService!,
+                                                  worker: currentWorker!)
                                               .where(
                                                 (date) => query.isEmpty
                                                     ? true
@@ -546,64 +562,97 @@ class _HomeScreenState extends State<HomeScreen> {
                                     },
                                     textFieldConfiguration:
                                         TextFieldConfiguration(
-                                            textAlign: TextAlign.center,
-                                            decoration: InputDecoration(
-                                                label: Text("Horas: "),
-                                                // suffixIcon: valueController.text.isEmpty
-                                                //     ? null
-                                                //     : GestureDetector(
-                                                //         onTap: () {
-                                                //           valueController.text = "";
-                                                //         },
-                                                //         child: Icon(
-                                                //           Icons.close,
-                                                //           color: Colors.red,
-                                                //         ),
-                                                //       ),
-                                                border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15))))),
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              const Text(":"),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              Expanded(
-                                child: TypeAheadFormField<int>(
-                                    onSuggestionSelected: (hour) {},
-                                    itemBuilder: (ctx, hour) {
-                                      return Text(hour.toString());
+                                      controller: hourController,
+                                      textAlign: TextAlign.center,
+                                      decoration: InputDecoration(
+                                        label: Text("Horas: "),
+                                        // suffixIcon: valueController.text.isEmpty
+                                        //     ? null
+                                        //     : GestureDetector(
+                                        //         onTap: () {
+                                        //           valueController.text = "";
+                                        //         },
+                                        //         child: Icon(
+                                        //           Icons.close,
+                                        //           color: Colors.red,
+                                        //         ),
+                                        //       ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        ),
+                                      ),
+                                    ),
+                                    validator: (txt) {
+                                      if (txt == null && !nextAvaliableHour) {
+                                        return "Campo Vazio!";
+                                      } else if (txt?.isEmpty ?? false) {
+                                        return "Campo Vazio!";
+                                      } else if (currentService == null) {
+                                        return "Selecionar Serviço!";
+                                      } else if (!appointmentProvider
+                                          .avaliableHoursByServiceAtDate(
+                                            date: dateTimeProvider
+                                                .currentDateTime,
+                                            service: currentService!,
+                                            worker: currentWorker!,
+                                          )
+                                          .map<String>((date) =>
+                                              DateFormat("HH").format(date))
+                                          .toSet()
+                                          .contains(txt)) {
+                                        return "Horario Inválido";
+                                      }
                                     },
-                                    suggestionsCallback: (query) {
-                                      return [];
-                                    },
-                                    textFieldConfiguration:
-                                        TextFieldConfiguration(
-                                            textAlign: TextAlign.center,
-                                            decoration: InputDecoration(
-                                                label: Text("Minutos: "),
-                                                // suffixIcon: valueController.text.isEmpty
-                                                //     ? null
-                                                //     : GestureDetector(
-                                                //         onTap: () {
-                                                //           valueController.text = "";
-                                                //         },
-                                                //         child: Icon(
-                                                //           Icons.close,
-                                                //           color: Colors.red,
-                                                //         ),
-                                                //       ),
-                                                border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15))))),
-                              ),
-                            ],
-                          ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                const Text(":"),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Expanded(
+                                  child: TypeAheadFormField<String>(
+                                      onSuggestionSelected: (hour) {},
+                                      itemBuilder: (ctx, hour) {
+                                        return Text(hour.toString());
+                                      },
+                                      suggestionsCallback: (query) {
+                                        return appointmentProvider
+                                            .avaliableHoursByServiceAtDate(
+                                                date: dateTimeProvider
+                                                    .currentDateTime,
+                                                service: currentService!,
+                                                worker: currentWorker!)
+                                            
+                                            .map<String>((e) => "").toSet();
+                                      },
+                                      textFieldConfiguration:
+                                          TextFieldConfiguration(
+                                              controller: minuteController,
+                                              textAlign: TextAlign.center,
+                                              decoration: InputDecoration(
+                                                  label: Text("Minutos: "),
+                                                  // suffixIcon: valueController.text.isEmpty
+                                                  //     ? null
+                                                  //     : GestureDetector(
+                                                  //         onTap: () {
+                                                  //           valueController.text = "";
+                                                  //         },
+                                                  //         child: Icon(
+                                                  //           Icons.close,
+                                                  //           color: Colors.red,
+                                                  //         ),
+                                                  //       ),
+                                                  border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15))))),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
                     ))

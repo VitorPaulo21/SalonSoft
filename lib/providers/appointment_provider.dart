@@ -80,7 +80,9 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
   }
 
   List<DateTime> avaliableHoursByServiceAtDate(
-      {required DateTime date, required Service service}) {
+      {required DateTime date,
+      required Service service,
+      required Worker worker}) {
     List<DateTime> avaliableDates = [];
     DateTime currentDateTime = DateTime(
       date.year,
@@ -115,9 +117,19 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
       );
       print(DateFormat("dd/MM/yyyy HH:mm").format(toCheckDate));
       toCheckDate = toCheckDate.add(service.duration);
-      return objects.any((appointment) =>
-          appointment.initialDate.isBefore(toCheckDate) &&
-          appointment.endDate.isAfter(toCheckDate));
+      bool containsAny = objects.any((appointment) {
+        if (appointment.worker != worker) {
+          return false;
+        }
+        bool isInDateRange = appointment.initialDate.isBefore(toCheckDate) &&
+                appointment.endDate.isAfter(toCheckDate) ||
+            appointment.initialDate.isBefore(dateTime) &&
+                appointment.endDate.isAfter(dateTime);
+        print(isInDateRange);
+        return isInDateRange;
+      });
+      print(containsAny);
+      return containsAny;
     });
 
     return avaliableDates;
