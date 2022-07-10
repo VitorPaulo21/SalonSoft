@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
+import 'package:salon_soft/providers/settings_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 
 import '../models/appointment.dart';
@@ -30,8 +31,8 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
     AppointmentProvider appointmentProvider = Provider.of<AppointmentProvider>(
       context,
     );
+    SettingsProvider settingsProvider = Provider.of<SettingsProvider>(context);
 
-   
     int activeWorkersCount = workerProvider.objects
         .where((worker) => worker.isActive ?? false)
         .length;
@@ -46,29 +47,39 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
       BoxConstraints constraints, int activeWorkersCount) {
     WorkerProvider workerProvider =
         Provider.of<WorkerProvider>(context, listen: false);
+    DateTimeProvider dateTimeProvider =
+        Provider.of<DateTimeProvider>(context, listen: false);
+    SettingsProvider settingsProvider =
+        Provider.of<SettingsProvider>(context, listen: false);
+
     return TeamCalendar(
       timeSlotWidth: 45,
       timeSlotHeight: 55,
-      startTime: Time(07, 00),
-      endTime: Time(23, 59),
+      startTime: Time(settingsProvider.objectPrivate.openHour,
+          settingsProvider.objectPrivate.openMinute),
+      endTime: Time(settingsProvider.objectPrivate.closeHour,
+          settingsProvider.objectPrivate.closeMinute),
       timeSlot: TimeSlot.thirteen,
-
       resources: [
         ...workerProvider.objects
             .where((worker) => worker.isActive ?? false)
             .map<Line>((worker) {
           return Line(
-
             header: Header(
               title: worker.name,
               photoPath: worker.photoPath,
             ),
-    
             appointments: [
-              ...worker.appointments.map<Appointment>((appoint) {
-          
-                return Appointment(
-                    appoint,
+              ...worker.appointments
+                  .where((appointment) =>
+                      appointment.initialDate.year ==
+                          dateTimeProvider.currentDateTime.year &&
+                      appointment.initialDate.month ==
+                          dateTimeProvider.currentDateTime.month &&
+                      appointment.initialDate.day ==
+                          dateTimeProvider.currentDateTime.day)
+                  .map<Appointment>((appoint) {
+                return Appointment(appoint,
                     title: appoint.service.first.name,
                     start: Time(
                         appoint.initialDate.hour, appoint.initialDate.minute),

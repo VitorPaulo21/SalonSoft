@@ -273,6 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Worker? currentWorker;
     Client? currentClient;
     Service? currentService;
+    DateTime? currentDateTime;
     int currentStep = 0;
     Widget dropdownRoundBorder<T>({
       required List<T> objects,
@@ -403,9 +404,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
           return StatefulBuilder(
             builder: (context, setState) {
+              if (nextAvaliableHour &&
+                  currentService != null &&
+                  currentWorker != null) {
+                DateTime nextAvaliableDate =
+                    appointmentProvider.nextAvaliableHourByServiceAtDate(
+                  date: dateTimeProvider.currentDateTime,
+                  service: currentService!,
+                  worker: currentWorker!,
+                );
+                // print(DateFormat("dd/MM/yyyy HH:mm").format(nextAvaliableDate));
+                hourController.text =
+                    DateFormat("HH").format(nextAvaliableDate);
+                minuteController.text =
+                    DateFormat("mm").format(nextAvaliableDate);
+              } else {
+                hourController.text = "";
+                minuteController.text = "";
+                currentDateTime = null;
+              }
               void submitForm() {
                 bool isValid = formKey.currentState?.validate() ?? false;
                 if (isValid) {
+                  currentDateTime = DateTime(
+                    dateTimeProvider.currentDateTime.year,
+                    dateTimeProvider.currentDateTime.month,
+                    dateTimeProvider.currentDateTime.day,
+                    int.parse(hourController.text),
+                    int.parse(minuteController.text),
+                  );
                   Provider.of<AppointmentProvider>(context, listen: false)
                       .addObject(
                     Appointments(
@@ -415,8 +442,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ..add(currentClient!),
                       service: HiveList(Hive.box<Service>("services"))
                         ..add(currentService!),
-                      initialDate: DateTime.now(),
-                      endDate: DateTime.now().add(currentService!.duration),
+                      initialDate: currentDateTime!,
+                      endDate: currentDateTime!.add(currentService!.duration),
                       description: obsController.text,
                     ),
                   );
@@ -496,15 +523,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     )),
                 EnhanceStep(
-                    title: const Text("Horário"),
+                    title: Text("Horário" +
+                        (currentDateTime != null
+                            ? " - ${DateFormat("dd/MM/yyyy ás HH:mm")}"
+                            : "")),
                     icon: const Icon(Icons.calendar_month_outlined),
+                    state: triedToValidate && currentDateTime == null
+                        ? StepState.error
+                        : StepState.complete,
                     content: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (currentService == null && currentWorker == null)
+                          if (currentService == null || currentWorker == null)
                             const Text(
                                 "Por favor preencha as informações anteriores"),
                           if (currentService != null && currentWorker != null)
@@ -533,7 +566,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       hourController.text = hour;
                                     },
                                     itemBuilder: (ctx, hour) {
-                                      return Text(hour);
+                                      return Text(
+                                        hour,
+                                        textAlign: TextAlign.center,
+                                      );
                                     },
                                     suggestionsCallback: (query) {
                                       return currentService == null
@@ -562,6 +598,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     },
                                     textFieldConfiguration:
                                         TextFieldConfiguration(
+                                      enabled: !nextAvaliableHour,
                                       controller: hourController,
                                       textAlign: TextAlign.center,
                                       decoration: InputDecoration(
@@ -590,6 +627,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         return "Campo Vazio!";
                                       } else if (currentService == null) {
                                         return "Selecionar Serviço!";
+                                      } else if (int.tryParse(txt!) == null) {
+                                        return "Valor Inválido";
                                       } else if (!appointmentProvider
                                           .avaliableHoursByServiceAtDate(
                                             date: dateTimeProvider
@@ -615,41 +654,81 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 Expanded(
                                   child: TypeAheadFormField<String>(
-                                      onSuggestionSelected: (hour) {},
-                                      itemBuilder: (ctx, hour) {
-                                        return Text(hour.toString());
-                                      },
-                                      suggestionsCallback: (query) {
-                                        return appointmentProvider
-                                            .avaliableHoursByServiceAtDate(
-                                                date: dateTimeProvider
-                                                    .currentDateTime,
-                                                service: currentService!,
-                                                worker: currentWorker!)
-                                            
-                                            .map<String>((e) => "").toSet();
-                                      },
-                                      textFieldConfiguration:
-                                          TextFieldConfiguration(
-                                              controller: minuteController,
-                                              textAlign: TextAlign.center,
-                                              decoration: InputDecoration(
-                                                  label: Text("Minutos: "),
-                                                  // suffixIcon: valueController.text.isEmpty
-                                                  //     ? null
-                                                  //     : GestureDetector(
-                                                  //         onTap: () {
-                                                  //           valueController.text = "";
-                                                  //         },
-                                                  //         child: Icon(
-                                                  //           Icons.close,
-                                                  //           color: Colors.red,
-                                                  //         ),
-                                                  //       ),
-                                                  border: OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15))))),
+                                    onSuggestionSelected: (minute) {
+                                      minuteController.text = minute;
+                                    },
+                                    itemBuilder: (ctx, hour) {
+                                      return Text(
+                                        hour.toString(),
+                                        textAlign: TextAlign.center,
+                                      );
+                                    },
+                                    suggestionsCallback: (query) {
+                                      return appointmentProvider
+                                          .avaliableHoursByServiceAtDate(
+                                              date: dateTimeProvider
+                                                  .currentDateTime,
+                                              service: currentService!,
+                                              worker: currentWorker!)
+                                          .where((date) =>
+                                              date.hour ==
+                                              int.parse(hourController.text))
+                                          .map<String>((date) =>
+                                              DateFormat("mm").format(date))
+                                          .toSet();
+                                    },
+                                    textFieldConfiguration:
+                                        TextFieldConfiguration(
+                                      enabled: !nextAvaliableHour,
+                                      controller: minuteController,
+                                      textAlign: TextAlign.center,
+                                      decoration: InputDecoration(
+                                        label: Text("Minutos: "),
+                                        // suffixIcon: valueController.text.isEmpty
+                                        //     ? null
+                                        //     : GestureDetector(
+                                        //         onTap: () {
+                                        //           valueController.text = "";
+                                        //         },
+                                        //         child: Icon(
+                                        //           Icons.close,
+                                        //           color: Colors.red,
+                                        //         ),
+                                        //       ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    validator: (txt) {
+                                      if (txt == null && !nextAvaliableHour) {
+                                        return "Campo Vazio!";
+                                      } else if (txt?.isEmpty ?? false) {
+                                        return "Campo Vazio!";
+                                      } else if (currentService == null) {
+                                        return "Selecionar Serviço!";
+                                      } else if (int.tryParse(txt!) == null) {
+                                        return "Valor Inválido";
+                                      } else if (!appointmentProvider
+                                          .avaliableHoursByServiceAtDate(
+                                            date: dateTimeProvider
+                                                .currentDateTime,
+                                            service: currentService!,
+                                            worker: currentWorker!,
+                                          )
+                                          .where((date) =>
+                                              date.hour ==
+                                              int.parse(hourController.text))
+                                          .map<String>((date) =>
+                                              DateFormat("mm").format(date))
+                                          .toSet()
+                                          .contains(txt)) {
+                                        return "Horario Inválido";
+                                      }
+                                    },
+                                  ),
                                 ),
                               ],
                             ),
@@ -657,7 +736,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ))
               ];
-              print(currentWorker.toString());
+
               return AlertDialog(
                 title: Text("Adicionar Horario"),
                 content: SizedBox(

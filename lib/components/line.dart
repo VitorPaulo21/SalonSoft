@@ -54,7 +54,7 @@ class LineComponent extends StatelessWidget {
             ? 30
             : 15;
     double heighPerMinute = (maxHeight / hourCount) / minutePerSlot;
-    print(hourCount);
+    
     return Stack(
       children: [
         SizedBox(

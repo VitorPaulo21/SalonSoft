@@ -93,10 +93,7 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
     );
     //Adicionando Todas as Datas para as Avaliables datas de
     //acordo com a hora de abertura e fechamento com o intervalo pre definido
-    print("Hora de Abertura " +
-        settingsProvider!.objectPrivate.openHour.toString());
-    print("Hora de Fechamento " +
-        settingsProvider!.objectPrivate.closeHour.toString());
+
     for (int i = settingsProvider!.objectPrivate.openHour;
         i <=
             (settingsProvider!.objectPrivate.closeHour *
@@ -106,7 +103,7 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
       currentDateTime = currentDateTime.add(
           Duration(minutes: settingsProvider!.objectPrivate.intervalOfMinutes));
     }
-    print(avaliableDates.length.toString() + " Primeiro datas disponivel");
+
     avaliableDates.removeWhere((dateTime) {
       DateTime toCheckDate = DateTime(
         dateTime.year,
@@ -115,23 +112,99 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
         dateTime.hour,
         dateTime.minute,
       );
-      print(DateFormat("dd/MM/yyyy HH:mm").format(toCheckDate));
-      toCheckDate = toCheckDate.add(service.duration);
-      bool containsAny = objects.any((appointment) {
-        if (appointment.worker != worker) {
-          return false;
+      dateTime = DateTime(
+        dateTime.year,
+        dateTime.month,
+        dateTime.day,
+        dateTime.hour,
+        dateTime.minute,
+      );
+      toCheckDate =
+          toCheckDate.add(Duration(minutes: service.duration.inMinutes));
+
+      bool containsAny = objects
+          .where((appointment) => appointment.worker.first == worker)
+          .any((appointment) {
+        bool isAtSameMoment =
+            appointment.initialDate.isAtSameMomentAs(dateTime) &&
+                appointment.endDate.isAtSameMomentAs(toCheckDate);
+
+        bool isOutside() {
+          bool isOutsideTotal = appointment.initialDate.isAfter(dateTime) &&
+              appointment.endDate.isBefore(toCheckDate);
+          bool isPartialOutsideInit =
+              appointment.initialDate.isAtSameMomentAs(dateTime) &&
+                  appointment.endDate.isBefore(toCheckDate);
+          bool isPartialOutsideEnd =
+              appointment.initialDate.isAfter(dateTime) &&
+                  appointment.endDate.isAtSameMomentAs(toCheckDate);
+          return isOutsideTotal || isPartialOutsideInit || isPartialOutsideEnd;
         }
-        bool isInDateRange = appointment.initialDate.isBefore(toCheckDate) &&
-                appointment.endDate.isAfter(toCheckDate) ||
-            appointment.initialDate.isBefore(dateTime) &&
-                appointment.endDate.isAfter(dateTime);
-        print(isInDateRange);
-        return isInDateRange;
+
+        bool isInside() {
+          bool isInsideTotal = appointment.initialDate.isBefore(dateTime) &&
+              appointment.endDate.isAfter(toCheckDate);
+
+          bool isPartialInsideInit =
+              appointment.initialDate.isAtSameMomentAs(dateTime) &&
+                  appointment.endDate.isAfter(toCheckDate);
+
+          bool isPartialInsideEnd =
+              appointment.initialDate.isBefore(dateTime) &&
+                  appointment.endDate.isAtSameMomentAs(toCheckDate);
+          return isInsideTotal || isPartialInsideInit || isPartialInsideEnd;
+        }
+
+        bool isafter = appointment.initialDate.isBefore(toCheckDate) &&
+            appointment.initialDate.isAfter(dateTime);
+
+        bool isbefore = appointment.endDate.isAfter(dateTime) &&
+            appointment.endDate.isBefore(toCheckDate);
+        if (isAtSameMoment ||
+            isOutside() ||
+            isInside() ||
+            isafter ||
+            isbefore) {
+          print(DateFormat("dd/MM/yyyy HH:mm").format(dateTime));
+          print(DateFormat("dd/MM/yyyy HH:mm").format(toCheckDate));
+          print(DateFormat("dd/MM/yyyy HH:mm").format(appointment.initialDate) +
+              " - Appointment Initial Date");
+          print(DateFormat("dd/MM/yyyy HH:mm").format(appointment.endDate) +
+              " - Appointment End Date");
+          print("Is at same moment " + isAtSameMoment.toString());
+          print("Is Outside " + isOutside().toString());
+          print("Is Inside " + isInside().toString());
+          print("Is After " + isafter.toString());
+          print("Is before " + isbefore.toString());
+        }
+        return isAtSameMoment ||
+            isOutside() ||
+            isInside() ||
+            isafter ||
+            isbefore;
       });
-      print(containsAny);
+
       return containsAny;
     });
-
+    print(avaliableDates.toString());
     return avaliableDates;
+  }
+
+  DateTime nextAvaliableHourByServiceAtDate(
+      {required DateTime date,
+      required Service service,
+      required Worker worker}) {
+    List<DateTime> dates = avaliableHoursByServiceAtDate(
+        date: date, service: service, worker: worker);
+    late DateTime nextDate;
+    if (dates.isEmpty) {
+      nextDate = date;
+    } else if (dates[0].isAtSameMomentAs(date)) {
+      nextDate = date;
+    } else {
+      nextDate = dates.firstWhere((dateItem) => dateItem.isAfter(date));
+    }
+
+    return nextDate;
   }
 }
