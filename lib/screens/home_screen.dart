@@ -272,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     Worker? currentWorker;
     Client? currentClient;
-    Service? currentService;
+    List<Service> currentServices = [];
     DateTime? currentDateTime;
     int currentStep = 0;
     Widget dropdownRoundBorder<T>({
@@ -300,8 +300,10 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         case Service:
           {
-            if (currentService != null) {
-              valueController.text = currentService.toString();
+            if (currentServices.isEmpty) {
+              // valueController.text = currentServices.length > 0
+              //     ? currentServices[0].toString()
+              //     : "";
             }
 
             break;
@@ -326,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               case Service:
                 {
-                  currentService = selectedObject as Service;
+                  currentServices.add(selectedObject as Service);
 
                   break;
                 }
@@ -349,14 +351,21 @@ class _HomeScreenState extends State<HomeScreen> {
               .contains(query.toLowerCase()));
         },
         validator: (txt) {
-          if (txt == null) {
-            return "Campo Obrigatório!";
-          } else if (txt.isEmpty) {
-            return "Campo Obrigatório!";
-          } else if (!objects.any((element) =>
-              element.toString().toLowerCase() == txt.toLowerCase())) {
-            return "Selecionar Item";
-          }
+          if (T == Service) {
+            if (currentServices.isEmpty) {
+              return "Campo Obrigatório";
+            }
+          } else {
+            if (txt == null) {
+              return "Campo Obrigatório!";
+            } else if (txt.isEmpty) {
+              return "Campo Obrigatório!";
+            } else if (!objects.any((element) =>
+                element.toString().toLowerCase() == txt.toLowerCase())) {
+              return "Selecionar Item";
+            }
+
+}
         },
         textFieldConfiguration: TextFieldConfiguration(
             controller: valueController,
@@ -368,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           valueController.text = "";
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.close,
                           color: Colors.red,
                         ),
@@ -405,12 +414,19 @@ class _HomeScreenState extends State<HomeScreen> {
           return StatefulBuilder(
             builder: (context, setState) {
               if (nextAvaliableHour &&
-                  currentService != null &&
+                  currentServices.isNotEmpty &&
                   currentWorker != null) {
                 DateTime nextAvaliableDate =
-                    appointmentProvider.nextAvaliableHourByServiceAtDate(
+                    appointmentProvider.nextAvaliableHourByDurationAtDate(
                   date: dateTimeProvider.currentDateTime,
-                  service: currentService!,
+                  duration: currentServices
+                      .map<Duration>((service) => service.duration)
+                      .reduce(
+                        (previousValue, nextValue) => Duration(
+                          minutes:
+                              previousValue.inMinutes + nextValue.inMinutes,
+                        ),
+                      ),
                   worker: currentWorker!,
                 );
                 // print(DateFormat("dd/MM/yyyy HH:mm").format(nextAvaliableDate));
@@ -441,9 +457,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       client: HiveList(Hive.box<Client>("clients"))
                         ..add(currentClient!),
                       service: HiveList(Hive.box<Service>("services"))
-                        ..add(currentService!),
+                        ..addAll(currentServices),
                       initialDate: currentDateTime!,
-                      endDate: currentDateTime!.add(currentService!.duration),
+                      endDate: currentDateTime!.add(currentServices
+                          .map<Duration>((service) => service.duration)
+                          .reduce(
+                            (previousValue, nextValue) => Duration(
+                              minutes:
+                                  previousValue.inMinutes + nextValue.inMinutes,
+                            ),
+                          )),
                       description: obsController.text,
                     ),
                   );
@@ -490,14 +513,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 EnhanceStep(
                     isActive: true,
-                    state: triedToValidate && currentService != null
+                    state: triedToValidate && currentServices.isEmpty
                         ? StepState.complete
                         : triedToValidate
                             ? StepState.error
                             : StepState.indexed,
-                    title: Text(currentService == null
+                    title: Text(currentServices.isEmpty
                         ? "Serviço"
-                        : "Serviço - ${currentService!.name}"),
+                        : "Serviço - ${currentServices.length > 1 ? "${currentServices[0]}..." : currentServices[0]}"),
                     icon: Icon(Icons.work_outline_outlined),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -519,6 +542,26 @@ class _HomeScreenState extends State<HomeScreen> {
                               label: const Text("Observações: "),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15))),
+                        ),
+                        if (currentServices.isNotEmpty)
+                          Container(
+                            height: 150,
+                            child: SingleChildScrollView(
+                              controller: ScrollController(),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ...currentServices.map<Widget>((service) {
+                                    return ListTile(
+                                      leading: Icon(Icons.work_outline),
+                                      title: Text(service.name),
+                                      trailing: Text(getTimeHoursByMinutes(
+                                          service.duration.inMinutes)),
+                                    );
+                                  })
+                                ],
+                              ),
+                            ),
                         )
                       ],
                     )),
@@ -537,10 +580,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (currentService == null || currentWorker == null)
+                          if (currentServices.isEmpty || currentWorker == null)
                             const Text(
                                 "Por favor preencha as informações anteriores"),
-                          if (currentService != null && currentWorker != null)
+                          if (currentServices.isNotEmpty &&
+                              currentWorker != null)
                             ListTile(
                               contentPadding:
                                   EdgeInsets.symmetric(horizontal: 0),
@@ -556,7 +600,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(
                             height: 10,
                           ),
-                          if (currentService != null && currentWorker != null)
+                          if (currentServices.isNotEmpty &&
+                              currentWorker != null)
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -572,13 +617,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                       );
                                     },
                                     suggestionsCallback: (query) {
-                                      return currentService == null
+                                      return currentServices.isEmpty
                                           ? []
                                           : appointmentProvider
-                                              .avaliableHoursByServiceAtDate(
+                                              .avaliableHoursByDurationAtDate(
                                                   date: dateTimeProvider
                                                       .currentDateTime,
-                                                  service: currentService!,
+                                                  duration: currentServices
+                                                      .map<Duration>(
+                                                          (service) =>
+                                                              service.duration)
+                                                      .reduce(
+                                                        (previousValue,
+                                                                nextValue) =>
+                                                            Duration(
+                                                          minutes: previousValue
+                                                                  .inMinutes +
+                                                              nextValue
+                                                                  .inMinutes,
+                                                        ),
+                                                      ),
                                                   worker: currentWorker!)
                                               .where(
                                                 (date) => query.isEmpty
@@ -625,15 +683,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                         return "Campo Vazio!";
                                       } else if (txt?.isEmpty ?? false) {
                                         return "Campo Vazio!";
-                                      } else if (currentService == null) {
+                                      } else if (currentServices.isEmpty) {
                                         return "Selecionar Serviço!";
                                       } else if (int.tryParse(txt!) == null) {
                                         return "Valor Inválido";
                                       } else if (!appointmentProvider
-                                          .avaliableHoursByServiceAtDate(
+                                          .avaliableHoursByDurationAtDate(
                                             date: dateTimeProvider
                                                 .currentDateTime,
-                                            service: currentService!,
+                                            duration: currentServices
+                                                .map<Duration>((service) =>
+                                                    service.duration)
+                                                .reduce(
+                                                  (previousValue, nextValue) =>
+                                                      Duration(
+                                                    minutes: previousValue
+                                                            .inMinutes +
+                                                        nextValue.inMinutes,
+                                                  ),
+                                                ),
                                             worker: currentWorker!,
                                           )
                                           .map<String>((date) =>
@@ -665,10 +733,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                     },
                                     suggestionsCallback: (query) {
                                       return appointmentProvider
-                                          .avaliableHoursByServiceAtDate(
+                                          .avaliableHoursByDurationAtDate(
                                               date: dateTimeProvider
                                                   .currentDateTime,
-                                              service: currentService!,
+                                              duration: currentServices
+                                                  .map<Duration>((service) =>
+                                                      service.duration)
+                                                  .reduce(
+                                                    (previousValue,
+                                                            nextValue) =>
+                                                        Duration(
+                                                      minutes: previousValue
+                                                              .inMinutes +
+                                                          nextValue.inMinutes,
+                                                    ),
+                                                  ),
                                               worker: currentWorker!)
                                           .where((date) =>
                                               date.hour ==
@@ -707,15 +786,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                         return "Campo Vazio!";
                                       } else if (txt?.isEmpty ?? false) {
                                         return "Campo Vazio!";
-                                      } else if (currentService == null) {
+                                      } else if (currentServices.isEmpty) {
                                         return "Selecionar Serviço!";
                                       } else if (int.tryParse(txt!) == null) {
                                         return "Valor Inválido";
                                       } else if (!appointmentProvider
-                                          .avaliableHoursByServiceAtDate(
+                                          .avaliableHoursByDurationAtDate(
                                             date: dateTimeProvider
                                                 .currentDateTime,
-                                            service: currentService!,
+                                            duration: currentServices
+                                                .map<Duration>((service) =>
+                                                    service.duration)
+                                                .reduce(
+                                                  (previousValue, nextValue) =>
+                                                      Duration(
+                                                    minutes: previousValue
+                                                            .inMinutes +
+                                                        nextValue.inMinutes,
+                                                  ),
+                                                ),
                                             worker: currentWorker!,
                                           )
                                           .where((date) =>
@@ -793,5 +882,10 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           );
         });
+  }
+  String getTimeHoursByMinutes(int minutes) {
+    int hours = minutes ~/ 60;
+    int minutesdif = minutes % 60;
+    return "${hours.toString().padLeft(2, "0")} : ${minutesdif.toString().padLeft(2, "0")}";
   }
 }

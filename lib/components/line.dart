@@ -39,9 +39,9 @@ class LineComponent extends StatelessWidget {
   Time convertDateTimeInTime(DateTime dateTime) {
     return Time(dateTime.hour, dateTime.minute);
   }
+
   @override
   Widget build(BuildContext context) {
-
     double maxHeight =
         (((endTime.hour - startTime.hour) * Slot.calc(timeSlot)) * 2) *
             timeSlotHeight /
@@ -54,7 +54,7 @@ class LineComponent extends StatelessWidget {
             ? 30
             : 15;
     double heighPerMinute = (maxHeight / hourCount) / minutePerSlot;
-    
+
     return Stack(
       children: [
         SizedBox(
@@ -62,7 +62,6 @@ class LineComponent extends StatelessWidget {
           child: ScrollConfiguration(
             behavior: NoSwipeScroll(),
             child: SingleChildScrollView(
-             
               controller: scroll,
               child: ListView(
                 shrinkWrap: true,
@@ -89,12 +88,11 @@ class LineComponent extends StatelessWidget {
                               itemBuilder: (context, index) {
                                 return Container(
                                   height: (timeSlotHeight / 2),
-                                     
                                 );
                               }),
                         ),
                       ),
-                      
+
                       for (Appointment appointment in line.appointments)
                         GridItem(appointment, heighPerMinute)
                       // Card(
@@ -144,6 +142,7 @@ class LineComponent extends StatelessWidget {
 
   Positioned GridItem(Appointment appointment, double heighPerMinute) {
     final ScrollController controller = ScrollController();
+    int currentServiceIndex = 0;
     return Positioned(
         top: (convertTimeToMinutes(appointment.start) -
                 convertTimeToMinutes(startTime)) *
@@ -167,7 +166,6 @@ class LineComponent extends StatelessWidget {
               child: Stack(
                 children: [
                   SingleChildScrollView(
-                  
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,15 +176,56 @@ class LineComponent extends StatelessWidget {
                             timeSlotHeight)
                           SizedBox(
                             height: timeSlotHeight,
-                            child: ListTile(
-                              leading: Icon(Icons.work_outline),
-                              title: Text(
-                                appointment.title,
-                                softWrap: false,
-                              ),
-                              subtitle: Text(
-                                "${appointment.start.hour.toString().padLeft(2, "0")}:${appointment.start.min.toString().padLeft(2, "0")} ás ${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.min.toString().padLeft(2, "0")}",
-                                softWrap: false,
+                            child: StatefulBuilder(
+                              builder: (context, setState) => ListTile(
+                                leading: Icon(Icons.work_outline),
+                                title: Text(
+                                  appointment.service[currentServiceIndex].name,
+                                  softWrap: false,
+                                ),
+                                subtitle: Text(
+                                  "${appointment.start.hour.toString().padLeft(2, "0")}:${appointment.start.min.toString().padLeft(2, "0")} ás ${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.min.toString().padLeft(2, "0")}",
+                                  softWrap: false,
+                                ),
+                                trailing: appointment.service.isEmpty
+                                    ? null
+                                    : Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 18.0),
+                                        child: FittedBox(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    if (currentServiceIndex >
+                                                        0) {
+                                                      currentServiceIndex--;
+                                                    }
+                                                  });
+                                                },
+                                                child: const Icon(
+                                                    Icons.keyboard_arrow_up),
+                                              ),
+                                              InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    if (currentServiceIndex <
+                                                        appointment.service
+                                                                .length -
+                                                            1) {
+                                                      currentServiceIndex++;
+                                                    }
+                                                  });
+                                                },
+                                                child: const Icon(
+                                                    Icons.keyboard_arrow_down),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                               ),
                             ),
                           ),

@@ -79,9 +79,9 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
     return avaliableMinutes;
   }
 
-  List<DateTime> avaliableHoursByServiceAtDate(
+  List<DateTime> avaliableHoursByDurationAtDate(
       {required DateTime date,
-      required Service service,
+      required Duration duration,
       required Worker worker}) {
     List<DateTime> avaliableDates = [];
     DateTime currentDateTime = DateTime(
@@ -120,7 +120,7 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
         dateTime.minute,
       );
       toCheckDate =
-          toCheckDate.add(Duration(minutes: service.duration.inMinutes));
+          toCheckDate.add(Duration(minutes: duration.inMinutes));
 
       bool containsAny = objects
           .where((appointment) => appointment.worker.first == worker)
@@ -190,12 +190,12 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
     return avaliableDates;
   }
 
-  DateTime nextAvaliableHourByServiceAtDate(
+  DateTime nextAvaliableHourByDurationAtDate(
       {required DateTime date,
-      required Service service,
+      required Duration duration,
       required Worker worker}) {
-    List<DateTime> dates = avaliableHoursByServiceAtDate(
-        date: date, service: service, worker: worker);
+    List<DateTime> dates = avaliableHoursByDurationAtDate(
+        date: date, duration: duration, worker: worker);
     late DateTime nextDate;
     if (dates.isEmpty) {
       nextDate = date;
