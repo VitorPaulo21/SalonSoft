@@ -1,14 +1,13 @@
 import 'package:enhance_stepper/enhance_stepper.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
+
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/components/titled_icon.dart';
 import 'package:salon_soft/components/titled_icon_button.dart';
-import 'package:salon_soft/models/appointment.dart';
+
 import 'package:salon_soft/models/appointments.dart';
 import 'package:salon_soft/models/client.dart';
 import 'package:salon_soft/models/service.dart';
@@ -22,7 +21,7 @@ import 'package:salon_soft/screens/appointment_screen.dart';
 import 'package:salon_soft/screens/clients_screen.dart';
 import 'package:salon_soft/screens/professionals_screen.dart';
 import 'package:salon_soft/screens/servicesScreen.dart';
-import 'package:salon_soft/utils/routes.dart';
+
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
@@ -412,32 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           return StatefulBuilder(
             builder: (context, setState) {
-              if (nextAvaliableHour &&
-                  currentServices.isNotEmpty &&
-                  currentWorker != null) {
-                DateTime nextAvaliableDate =
-                    appointmentProvider.nextAvaliableHourByDurationAtDate(
-                  date: dateTimeProvider.currentDateTime,
-                  duration: currentServices
-                      .map<Duration>((service) => service.duration)
-                      .reduce(
-                        (previousValue, nextValue) => Duration(
-                          minutes:
-                              previousValue.inMinutes + nextValue.inMinutes,
-                        ),
-                      ),
-                  worker: currentWorker!,
-                );
-                // print(DateFormat("dd/MM/yyyy HH:mm").format(nextAvaliableDate));
-                hourController.text =
-                    DateFormat("HH").format(nextAvaliableDate);
-                minuteController.text =
-                    DateFormat("mm").format(nextAvaliableDate);
-              } else {
-                hourController.text = "";
-                minuteController.text = "";
-                currentDateTime = null;
-              }
+              
               void submitForm() {
                 bool isValid = formKey.currentState?.validate() ?? false;
                 if (isValid) {
@@ -594,7 +568,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           hourController,
                           appointmentProvider,
                           dateTimeProvider,
-                          minuteController),
+                          minuteController,
+                          currentDateTime),
                     ))
               ];
 
@@ -619,6 +594,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         setState(() {
                           if (currentStep < 4) {
                             currentStep++;
+                            Scrollable.ensureVisible(
+                              context,
+                              curve: Curves.fastOutSlowIn,
+                              duration: kThemeAnimationDuration,
+                            );
                           } else {
                             currentStep = 0;
                           }
@@ -628,12 +608,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         setState(() {
                           if (currentStep < 4) {
                             currentStep++;
+                            Scrollable.ensureVisible(
+                              context,
+                              curve: Curves.fastOutSlowIn,
+                              duration: kThemeAnimationDuration,
+                            );
                           }
                         });
                       },
                       onStepTapped: (index) {
                         setState(() {
                           currentStep = index;
+                          Scrollable.ensureVisible(
+                            context,
+                            curve: Curves.fastOutSlowIn,
+                            duration: kThemeAnimationDuration,
+                          );
                         });
                       },
                     ),
@@ -665,9 +655,35 @@ class _HomeScreenState extends State<HomeScreen> {
       TextEditingController hourController,
       AppointmentProvider appointmentProvider,
       DateTimeProvider dateTimeProvider,
-      TextEditingController minuteController) {
+      TextEditingController minuteController,
+      DateTime? currentDateTime) {
     return StatefulBuilder(
-      builder: (context, setState) => Column(
+      builder: (context, setState) {
+      if (nextAvaliableHour &&
+          currentServices.isNotEmpty &&
+          currentWorker != null) {
+        DateTime nextAvaliableDate =
+            appointmentProvider.nextAvaliableHourByDurationAtDate(
+          date: dateTimeProvider.currentDateTime,
+          duration: currentServices
+              .map<Duration>((service) => service.duration)
+              .reduce(
+                (previousValue, nextValue) => Duration(
+                  minutes: previousValue.inMinutes + nextValue.inMinutes,
+                ),
+              ),
+          worker: currentWorker,
+        );
+        // print(DateFormat("dd/MM/yyyy HH:mm").format(nextAvaliableDate));
+        hourController.text = DateFormat("HH").format(nextAvaliableDate);
+        minuteController.text = DateFormat("mm").format(nextAvaliableDate);
+      } else {
+        hourController.text = "";
+        minuteController.text = "";
+        currentDateTime = null;
+      }
+
+      return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -681,7 +697,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   onChanged: (value) {
                     setState(() {
                       nextAvaliableHour = value ?? false;
+                      
                     });
+                    if (!(value ?? false)) {
+                      hourController.text = "";
+                    }
                   }),
               title: Text("Próximo horário disponivel"),
             ),
@@ -718,7 +738,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               nextValue.inMinutes,
                                         ),
                                       ),
-                                  worker: currentWorker!)
+                                  worker: currentWorker)
                               .where(
                                 (date) => query.isEmpty
                                     ? true
@@ -773,7 +793,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         nextValue.inMinutes,
                                   ),
                                 ),
-                            worker: currentWorker!,
+                            worker: currentWorker,
                           )
                           .map<String>((date) => DateFormat("HH").format(date))
                           .toSet()
@@ -813,7 +833,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           nextValue.inMinutes,
                                     ),
                                   ),
-                              worker: currentWorker!)
+                              worker: currentWorker)
                           .where((date) =>
                               date.hour == int.parse(hourController.text))
                           .map<String>((date) => DateFormat("mm").format(date))
@@ -863,7 +883,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         nextValue.inMinutes,
                                   ),
                                 ),
-                            worker: currentWorker!,
+                            worker: currentWorker,
                           )
                           .where((date) =>
                               date.hour == int.parse(hourController.text))
@@ -878,7 +898,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
         ],
-      ),
+      );
+    }
     );
   }
 

@@ -17,9 +17,7 @@ class Worker extends HiveObject {
     required this.name,
     this.photoPath = "",
     this.isActive = true,
-  }) : super() {
-   
-  }
+  });
 
   void syncToHive() {
     appointments =
