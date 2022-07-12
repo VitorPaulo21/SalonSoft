@@ -364,8 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 element.toString().toLowerCase() == txt.toLowerCase())) {
               return "Selecionar Item";
             }
-
-}
+          }
         },
         textFieldConfiguration: TextFieldConfiguration(
             controller: valueController,
@@ -512,59 +511,71 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 EnhanceStep(
-                    isActive: true,
-                    state: triedToValidate && currentServices.isEmpty
-                        ? StepState.complete
-                        : triedToValidate
-                            ? StepState.error
-                            : StepState.indexed,
-                    title: Text(currentServices.isEmpty
-                        ? "Serviço"
-                        : "Serviço - ${currentServices.length > 1 ? "${currentServices[0]}..." : currentServices[0]}"),
-                    icon: Icon(Icons.work_outline_outlined),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        dropdownRoundBorder<Service>(
-                          objects: servicesProvider.objects,
-                          setState: setState,
-                          label: "Serviço: ",
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        TextField(
-                          maxLines: 3,
-                          maxLength: 100,
-                          controller: obsController,
-                          decoration: InputDecoration(
-                              label: const Text("Observações: "),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15))),
-                        ),
-                        if (currentServices.isNotEmpty)
-                          Container(
-                            height: 150,
-                            child: SingleChildScrollView(
-                              controller: ScrollController(),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ...currentServices.map<Widget>((service) {
-                                    return ListTile(
+                  isActive: true,
+                  state: triedToValidate && currentServices.isNotEmpty
+                      ? StepState.complete
+                      : triedToValidate
+                          ? StepState.error
+                          : StepState.indexed,
+                  title: Text(currentServices.isEmpty
+                      ? "Serviço"
+                      : "Serviço - ${currentServices.length > 1 ? "${currentServices[0]}..." : currentServices[0]}"),
+                  icon: Icon(Icons.work_outline_outlined),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      dropdownRoundBorder<Service>(
+                        objects: servicesProvider.objects,
+                        setState: setState,
+                        label: "Serviço: ",
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      if (currentServices.isNotEmpty)
+                        Container(
+                          height: 150,
+                          child: SingleChildScrollView(
+                            controller: ScrollController(),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ...currentServices.map<Widget>((service) {
+                                  return Card(
+                                    elevation: 3,
+                                    child: ListTile(
                                       leading: Icon(Icons.work_outline),
                                       title: Text(service.name),
                                       trailing: Text(getTimeHoursByMinutes(
                                           service.duration.inMinutes)),
-                                    );
-                                  })
-                                ],
-                              ),
+                                    ),
+                                  );
+                                })
+                              ],
                             ),
+                          ),
                         )
-                      ],
-                    )),
+                    ],
+                  ),
+                ),
+                EnhanceStep(
+                  isActive: true,
+                  state: obsController.text.isNotEmpty
+                      ? StepState.complete
+                      : StepState.editing,
+                  title: Text("Observação"),
+                  icon: Icon(Icons.notes),
+                  content: TextField(
+                    maxLines: 3,
+                    maxLength: 100,
+                    controller: obsController,
+                    decoration: InputDecoration(
+                        label: const Text("Observações: "),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15))),
+                  ),
+                ),
                 EnhanceStep(
                     title: Text("Horário" +
                         (currentDateTime != null
@@ -576,260 +587,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         : StepState.complete,
                     content: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (currentServices.isEmpty || currentWorker == null)
-                            const Text(
-                                "Por favor preencha as informações anteriores"),
-                          if (currentServices.isNotEmpty &&
-                              currentWorker != null)
-                            ListTile(
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 0),
-                              leading: Checkbox(
-                                  value: nextAvaliableHour,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      nextAvaliableHour = value ?? false;
-                                    });
-                                  }),
-                              title: Text("Próximo horário disponivel"),
-                            ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          if (currentServices.isNotEmpty &&
-                              currentWorker != null)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Expanded(
-                                  child: TypeAheadFormField<String>(
-                                    onSuggestionSelected: (hour) {
-                                      hourController.text = hour;
-                                    },
-                                    itemBuilder: (ctx, hour) {
-                                      return Text(
-                                        hour,
-                                        textAlign: TextAlign.center,
-                                      );
-                                    },
-                                    suggestionsCallback: (query) {
-                                      return currentServices.isEmpty
-                                          ? []
-                                          : appointmentProvider
-                                              .avaliableHoursByDurationAtDate(
-                                                  date: dateTimeProvider
-                                                      .currentDateTime,
-                                                  duration: currentServices
-                                                      .map<Duration>(
-                                                          (service) =>
-                                                              service.duration)
-                                                      .reduce(
-                                                        (previousValue,
-                                                                nextValue) =>
-                                                            Duration(
-                                                          minutes: previousValue
-                                                                  .inMinutes +
-                                                              nextValue
-                                                                  .inMinutes,
-                                                        ),
-                                                      ),
-                                                  worker: currentWorker!)
-                                              .where(
-                                                (date) => query.isEmpty
-                                                    ? true
-                                                    : DateFormat("HH")
-                                                        .format(date)
-                                                        .contains(
-                                                          (int.tryParse(
-                                                                      query) ??
-                                                                  -1)
-                                                              .toString(),
-                                                        ),
-                                              )
-                                              .map<String>((date) =>
-                                                  DateFormat("HH").format(date))
-                                              .toSet();
-                                    },
-                                    textFieldConfiguration:
-                                        TextFieldConfiguration(
-                                      enabled: !nextAvaliableHour,
-                                      controller: hourController,
-                                      textAlign: TextAlign.center,
-                                      decoration: InputDecoration(
-                                        label: Text("Horas: "),
-                                        // suffixIcon: valueController.text.isEmpty
-                                        //     ? null
-                                        //     : GestureDetector(
-                                        //         onTap: () {
-                                        //           valueController.text = "";
-                                        //         },
-                                        //         child: Icon(
-                                        //           Icons.close,
-                                        //           color: Colors.red,
-                                        //         ),
-                                        //       ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                        ),
-                                      ),
-                                    ),
-                                    validator: (txt) {
-                                      if (txt == null && !nextAvaliableHour) {
-                                        return "Campo Vazio!";
-                                      } else if (txt?.isEmpty ?? false) {
-                                        return "Campo Vazio!";
-                                      } else if (currentServices.isEmpty) {
-                                        return "Selecionar Serviço!";
-                                      } else if (int.tryParse(txt!) == null) {
-                                        return "Valor Inválido";
-                                      } else if (!appointmentProvider
-                                          .avaliableHoursByDurationAtDate(
-                                            date: dateTimeProvider
-                                                .currentDateTime,
-                                            duration: currentServices
-                                                .map<Duration>((service) =>
-                                                    service.duration)
-                                                .reduce(
-                                                  (previousValue, nextValue) =>
-                                                      Duration(
-                                                    minutes: previousValue
-                                                            .inMinutes +
-                                                        nextValue.inMinutes,
-                                                  ),
-                                                ),
-                                            worker: currentWorker!,
-                                          )
-                                          .map<String>((date) =>
-                                              DateFormat("HH").format(date))
-                                          .toSet()
-                                          .contains(txt)) {
-                                        return "Horario Inválido";
-                                      }
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                const Text(":"),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Expanded(
-                                  child: TypeAheadFormField<String>(
-                                    onSuggestionSelected: (minute) {
-                                      minuteController.text = minute;
-                                    },
-                                    itemBuilder: (ctx, hour) {
-                                      return Text(
-                                        hour.toString(),
-                                        textAlign: TextAlign.center,
-                                      );
-                                    },
-                                    suggestionsCallback: (query) {
-                                      return appointmentProvider
-                                          .avaliableHoursByDurationAtDate(
-                                              date: dateTimeProvider
-                                                  .currentDateTime,
-                                              duration: currentServices
-                                                  .map<Duration>((service) =>
-                                                      service.duration)
-                                                  .reduce(
-                                                    (previousValue,
-                                                            nextValue) =>
-                                                        Duration(
-                                                      minutes: previousValue
-                                                              .inMinutes +
-                                                          nextValue.inMinutes,
-                                                    ),
-                                                  ),
-                                              worker: currentWorker!)
-                                          .where((date) =>
-                                              date.hour ==
-                                              int.parse(hourController.text))
-                                          .map<String>((date) =>
-                                              DateFormat("mm").format(date))
-                                          .toSet();
-                                    },
-                                    textFieldConfiguration:
-                                        TextFieldConfiguration(
-                                      enabled: !nextAvaliableHour,
-                                      controller: minuteController,
-                                      textAlign: TextAlign.center,
-                                      decoration: InputDecoration(
-                                        label: Text("Minutos: "),
-                                        // suffixIcon: valueController.text.isEmpty
-                                        //     ? null
-                                        //     : GestureDetector(
-                                        //         onTap: () {
-                                        //           valueController.text = "";
-                                        //         },
-                                        //         child: Icon(
-                                        //           Icons.close,
-                                        //           color: Colors.red,
-                                        //         ),
-                                        //       ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            15,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    validator: (txt) {
-                                      if (txt == null && !nextAvaliableHour) {
-                                        return "Campo Vazio!";
-                                      } else if (txt?.isEmpty ?? false) {
-                                        return "Campo Vazio!";
-                                      } else if (currentServices.isEmpty) {
-                                        return "Selecionar Serviço!";
-                                      } else if (int.tryParse(txt!) == null) {
-                                        return "Valor Inválido";
-                                      } else if (!appointmentProvider
-                                          .avaliableHoursByDurationAtDate(
-                                            date: dateTimeProvider
-                                                .currentDateTime,
-                                            duration: currentServices
-                                                .map<Duration>((service) =>
-                                                    service.duration)
-                                                .reduce(
-                                                  (previousValue, nextValue) =>
-                                                      Duration(
-                                                    minutes: previousValue
-                                                            .inMinutes +
-                                                        nextValue.inMinutes,
-                                                  ),
-                                                ),
-                                            worker: currentWorker!,
-                                          )
-                                          .where((date) =>
-                                              date.hour ==
-                                              int.parse(hourController.text))
-                                          .map<String>((date) =>
-                                              DateFormat("mm").format(date))
-                                          .toSet()
-                                          .contains(txt)) {
-                                        return "Horario Inválido";
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
+                      child: appointmentDurationPicker(
+                          currentServices,
+                          currentWorker,
+                          nextAvaliableHour,
+                          hourController,
+                          appointmentProvider,
+                          dateTimeProvider,
+                          minuteController),
                     ))
               ];
 
               return AlertDialog(
                 title: Text("Adicionar Horario"),
                 content: SizedBox(
-                  height: 400,
+                  height: MediaQuery.of(context).size.height > 400
+                      ? MediaQuery.of(context).size.height * 0.6
+                      : 400,
                   width: 400,
                   child: Form(
                     key: formKey,
@@ -843,7 +617,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       steps: steps,
                       onStepCancel: () {
                         setState(() {
-                          if (currentStep < 3) {
+                          if (currentStep < 4) {
                             currentStep++;
                           } else {
                             currentStep = 0;
@@ -852,7 +626,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       onStepContinue: () {
                         setState(() {
-                          if (currentStep < 3) {
+                          if (currentStep < 4) {
                             currentStep++;
                           }
                         });
@@ -883,6 +657,231 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         });
   }
+
+  Widget appointmentDurationPicker(
+      List<Service> currentServices,
+      Worker? currentWorker,
+      bool nextAvaliableHour,
+      TextEditingController hourController,
+      AppointmentProvider appointmentProvider,
+      DateTimeProvider dateTimeProvider,
+      TextEditingController minuteController) {
+    return StatefulBuilder(
+      builder: (context, setState) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (currentServices.isEmpty || currentWorker == null)
+            const Text("Por favor preencha as informações anteriores"),
+          if (currentServices.isNotEmpty && currentWorker != null)
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 0),
+              leading: Checkbox(
+                  value: nextAvaliableHour,
+                  onChanged: (value) {
+                    setState(() {
+                      nextAvaliableHour = value ?? false;
+                    });
+                  }),
+              title: Text("Próximo horário disponivel"),
+            ),
+          const SizedBox(
+            height: 10,
+          ),
+          if (currentServices.isNotEmpty && currentWorker != null)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: TypeAheadFormField<String>(
+                    onSuggestionSelected: (hour) {
+                      hourController.text = hour;
+                    },
+                    itemBuilder: (ctx, hour) {
+                      return Text(
+                        hour,
+                        textAlign: TextAlign.center,
+                      );
+                    },
+                    suggestionsCallback: (query) {
+                      return currentServices.isEmpty
+                          ? []
+                          : appointmentProvider
+                              .avaliableHoursByDurationAtDate(
+                                  date: dateTimeProvider.currentDateTime,
+                                  duration: currentServices
+                                      .map<Duration>(
+                                          (service) => service.duration)
+                                      .reduce(
+                                        (previousValue, nextValue) => Duration(
+                                          minutes: previousValue.inMinutes +
+                                              nextValue.inMinutes,
+                                        ),
+                                      ),
+                                  worker: currentWorker!)
+                              .where(
+                                (date) => query.isEmpty
+                                    ? true
+                                    : DateFormat("HH").format(date).contains(
+                                          (int.tryParse(query) ?? -1)
+                                              .toString(),
+                                        ),
+                              )
+                              .map<String>(
+                                  (date) => DateFormat("HH").format(date))
+                              .toSet();
+                    },
+                    textFieldConfiguration: TextFieldConfiguration(
+                      enabled: !nextAvaliableHour,
+                      controller: hourController,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        label: Text("Horas: "),
+                        // suffixIcon: valueController.text.isEmpty
+                        //     ? null
+                        //     : GestureDetector(
+                        //         onTap: () {
+                        //           valueController.text = "";
+                        //         },
+                        //         child: Icon(
+                        //           Icons.close,
+                        //           color: Colors.red,
+                        //         ),
+                        //       ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                    ),
+                    validator: (txt) {
+                      if (txt == null && !nextAvaliableHour) {
+                        return "Campo Vazio!";
+                      } else if (txt?.isEmpty ?? false) {
+                        return "Campo Vazio!";
+                      } else if (currentServices.isEmpty) {
+                        return "Selecionar Serviço!";
+                      } else if (int.tryParse(txt!) == null) {
+                        return "Valor Inválido";
+                      } else if (!appointmentProvider
+                          .avaliableHoursByDurationAtDate(
+                            date: dateTimeProvider.currentDateTime,
+                            duration: currentServices
+                                .map<Duration>((service) => service.duration)
+                                .reduce(
+                                  (previousValue, nextValue) => Duration(
+                                    minutes: previousValue.inMinutes +
+                                        nextValue.inMinutes,
+                                  ),
+                                ),
+                            worker: currentWorker!,
+                          )
+                          .map<String>((date) => DateFormat("HH").format(date))
+                          .toSet()
+                          .contains(txt)) {
+                        return "Horario Inválido";
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                const Text(":"),
+                const SizedBox(
+                  width: 5,
+                ),
+                Expanded(
+                  child: TypeAheadFormField<String>(
+                    onSuggestionSelected: (minute) {
+                      minuteController.text = minute;
+                    },
+                    itemBuilder: (ctx, hour) {
+                      return Text(
+                        hour.toString(),
+                        textAlign: TextAlign.center,
+                      );
+                    },
+                    suggestionsCallback: (query) {
+                      return appointmentProvider
+                          .avaliableHoursByDurationAtDate(
+                              date: dateTimeProvider.currentDateTime,
+                              duration: currentServices
+                                  .map<Duration>((service) => service.duration)
+                                  .reduce(
+                                    (previousValue, nextValue) => Duration(
+                                      minutes: previousValue.inMinutes +
+                                          nextValue.inMinutes,
+                                    ),
+                                  ),
+                              worker: currentWorker!)
+                          .where((date) =>
+                              date.hour == int.parse(hourController.text))
+                          .map<String>((date) => DateFormat("mm").format(date))
+                          .toSet();
+                    },
+                    textFieldConfiguration: TextFieldConfiguration(
+                      enabled: !nextAvaliableHour,
+                      controller: minuteController,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        label: Text("Minutos: "),
+                        // suffixIcon: valueController.text.isEmpty
+                        //     ? null
+                        //     : GestureDetector(
+                        //         onTap: () {
+                        //           valueController.text = "";
+                        //         },
+                        //         child: Icon(
+                        //           Icons.close,
+                        //           color: Colors.red,
+                        //         ),
+                        //       ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                            15,
+                          ),
+                        ),
+                      ),
+                    ),
+                    validator: (txt) {
+                      if (txt == null && !nextAvaliableHour) {
+                        return "Campo Vazio!";
+                      } else if (txt?.isEmpty ?? false) {
+                        return "Campo Vazio!";
+                      } else if (currentServices.isEmpty) {
+                        return "Selecionar Serviço!";
+                      } else if (int.tryParse(txt!) == null) {
+                        return "Valor Inválido";
+                      } else if (!appointmentProvider
+                          .avaliableHoursByDurationAtDate(
+                            date: dateTimeProvider.currentDateTime,
+                            duration: currentServices
+                                .map<Duration>((service) => service.duration)
+                                .reduce(
+                                  (previousValue, nextValue) => Duration(
+                                    minutes: previousValue.inMinutes +
+                                        nextValue.inMinutes,
+                                  ),
+                                ),
+                            worker: currentWorker!,
+                          )
+                          .where((date) =>
+                              date.hour == int.parse(hourController.text))
+                          .map<String>((date) => DateFormat("mm").format(date))
+                          .toSet()
+                          .contains(txt)) {
+                        return "Horario Inválido";
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
   String getTimeHoursByMinutes(int minutes) {
     int hours = minutes ~/ 60;
     int minutesdif = minutes % 60;

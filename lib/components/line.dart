@@ -178,6 +178,7 @@ class LineComponent extends StatelessWidget {
                             height: timeSlotHeight,
                             child: StatefulBuilder(
                               builder: (context, setState) => ListTile(
+                                
                                 leading: Icon(Icons.work_outline),
                                 title: Text(
                                   appointment.service[currentServiceIndex].name,
@@ -187,7 +188,8 @@ class LineComponent extends StatelessWidget {
                                   "${appointment.start.hour.toString().padLeft(2, "0")}:${appointment.start.min.toString().padLeft(2, "0")} ás ${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.min.toString().padLeft(2, "0")}",
                                   softWrap: false,
                                 ),
-                                trailing: appointment.service.isEmpty
+                                
+                                trailing: !(appointment.service.length > 1)
                                     ? null
                                     : Padding(
                                         padding:
