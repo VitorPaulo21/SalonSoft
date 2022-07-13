@@ -594,37 +594,40 @@ class _HomeScreenState extends State<HomeScreen> {
                         setState(() {
                           if (currentStep < 4) {
                             currentStep++;
-                            Scrollable.ensureVisible(
-                              context,
-                              curve: Curves.fastOutSlowIn,
-                              duration: kThemeAnimationDuration,
-                            );
+                            
                           } else {
                             currentStep = 0;
                           }
                         });
+                        Scrollable.ensureVisible(
+                          context,
+                          curve: Curves.fastOutSlowIn,
+                          duration: kThemeAnimationDuration,
+                        );
                       },
                       onStepContinue: () {
                         setState(() {
                           if (currentStep < 4) {
                             currentStep++;
-                            Scrollable.ensureVisible(
-                              context,
-                              curve: Curves.fastOutSlowIn,
-                              duration: kThemeAnimationDuration,
-                            );
+                            
                           }
                         });
+                        Scrollable.ensureVisible(
+                          context,
+                          curve: Curves.fastOutSlowIn,
+                          duration: kThemeAnimationDuration,
+                        );
                       },
                       onStepTapped: (index) {
                         setState(() {
                           currentStep = index;
-                          Scrollable.ensureVisible(
-                            context,
-                            curve: Curves.fastOutSlowIn,
-                            duration: kThemeAnimationDuration,
-                          );
+                          
                         });
+                        Scrollable.ensureVisible(
+                          context,
+                          curve: Curves.fastOutSlowIn,
+                          duration: kThemeAnimationDuration,
+                        );
                       },
                     ),
                   ),
