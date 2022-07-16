@@ -397,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Provider.of<DateTimeProvider>(context, listen: false);
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
     bool triedToValidate = false;
-
+    
     return showDialog(
         context: context,
         builder: (context) {
@@ -612,11 +612,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             
                           }
                         });
-                        Scrollable.ensureVisible(
-                          context,
-                          curve: Curves.fastOutSlowIn,
-                          duration: kThemeAnimationDuration,
-                        );
+                        // if (_keys[stepIndex].currentContext != null) {
+                        //   Future.delayed(Duration(
+                        //           milliseconds:
+                        //               kThemeAnimationDuration.inMilliseconds))
+                        //       .then((value) {
+                        //     Scrollable.ensureVisible(
+                        //       _keys[widget.currentStep].currentContext!,
+                        //       curve: Curves.fastOutSlowIn,
+                        //       duration: kThemeAnimationDuration,
+                        //     );
+                        //   });
+                        // }
                       },
                       onStepTapped: (index) {
                         setState(() {
@@ -649,6 +656,8 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           );
         });
+
+        
   }
 
   Widget appointmentDurationPicker(
@@ -660,6 +669,8 @@ class _HomeScreenState extends State<HomeScreen> {
       DateTimeProvider dateTimeProvider,
       TextEditingController minuteController,
       DateTime? currentDateTime) {
+      
+      
     return StatefulBuilder(
       builder: (context, setState) {
       if (nextAvaliableHour &&
