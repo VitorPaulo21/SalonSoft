@@ -121,6 +121,11 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
       );
       toCheckDate =
           toCheckDate.add(Duration(minutes: duration.inMinutes));
+      int closeHour = settingsProvider!.objectPrivate.closeHour;
+      int closeMinute = settingsProvider!.objectPrivate.closeMinute;
+      bool isAfterMaximum = toCheckDate.compareTo(DateTime(dateTime.year,
+              dateTime.month, dateTime.day, closeHour, closeMinute)) >
+          0;
 
       bool containsAny = objects
           .where((appointment) => appointment.worker.first == worker)
@@ -154,7 +159,7 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
                   appointment.endDate.isAtSameMomentAs(toCheckDate);
           return isInsideTotal || isPartialInsideInit || isPartialInsideEnd;
         }
-
+        
         bool isafter = appointment.initialDate.isBefore(toCheckDate) &&
             appointment.initialDate.isAfter(dateTime);
 
@@ -184,13 +189,13 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
             isbefore;
       });
 
-      return containsAny;
+      return containsAny || isAfterMaximum;
     });
     print(avaliableDates.toString());
     return avaliableDates;
   }
 
-  DateTime nextAvaliableHourByDurationAtDate(
+  DateTime? nextAvaliableHourByDurationAtDate(
       {required DateTime date,
       required Duration duration,
       required Worker worker}) {
@@ -201,8 +206,12 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
       nextDate = date;
     } else if (dates[0].isAtSameMomentAs(date)) {
       nextDate = date;
-    } else {
+    } else if (dates.any((dateItem) => dateItem.isAfter(date))) {
       nextDate = dates.firstWhere((dateItem) => dateItem.isAfter(date));
+    } else {
+      return dates
+          .lastWhere((dateItem) => dateItem.compareTo(date.add(duration)) <= 0)
+          .subtract(duration);
     }
 
     return nextDate;

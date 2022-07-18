@@ -397,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Provider.of<DateTimeProvider>(context, listen: false);
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
     bool triedToValidate = false;
-    
+
     return showDialog(
         context: context,
         builder: (context) {
@@ -411,7 +411,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
           return StatefulBuilder(
             builder: (context, setState) {
-              
               void submitForm() {
                 bool isValid = formKey.currentState?.validate() ?? false;
                 if (isValid) {
@@ -594,7 +593,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         setState(() {
                           if (currentStep < 4) {
                             currentStep++;
-                            
                           } else {
                             currentStep = 0;
                           }
@@ -609,7 +607,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         setState(() {
                           if (currentStep < 4) {
                             currentStep++;
-                            
                           }
                         });
                         // if (_keys[stepIndex].currentContext != null) {
@@ -628,7 +625,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       onStepTapped: (index) {
                         setState(() {
                           currentStep = index;
-                          
                         });
                         Scrollable.ensureVisible(
                           context,
@@ -656,8 +652,6 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           );
         });
-
-        
   }
 
   Widget appointmentDurationPicker(
@@ -669,14 +663,11 @@ class _HomeScreenState extends State<HomeScreen> {
       DateTimeProvider dateTimeProvider,
       TextEditingController minuteController,
       DateTime? currentDateTime) {
-      
-      
-    return StatefulBuilder(
-      builder: (context, setState) {
+    return StatefulBuilder(builder: (context, setState) {
       if (nextAvaliableHour &&
           currentServices.isNotEmpty &&
           currentWorker != null) {
-        DateTime nextAvaliableDate =
+        DateTime? nextAvaliableDate =
             appointmentProvider.nextAvaliableHourByDurationAtDate(
           date: dateTimeProvider.currentDateTime,
           duration: currentServices
@@ -689,8 +680,12 @@ class _HomeScreenState extends State<HomeScreen> {
           worker: currentWorker,
         );
         // print(DateFormat("dd/MM/yyyy HH:mm").format(nextAvaliableDate));
-        hourController.text = DateFormat("HH").format(nextAvaliableDate);
-        minuteController.text = DateFormat("mm").format(nextAvaliableDate);
+        if (nextAvaliableDate != null) {
+          hourController.text = DateFormat("HH").format(nextAvaliableDate);
+          minuteController.text = DateFormat("mm").format(nextAvaliableDate);
+        } else {
+          nextAvaliableHour = false;
+        }
       } else {
         hourController.text = "";
         minuteController.text = "";
@@ -711,7 +706,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   onChanged: (value) {
                     setState(() {
                       nextAvaliableHour = value ?? false;
-                      
                     });
                     if (!(value ?? false)) {
                       hourController.text = "";
@@ -913,8 +907,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
         ],
       );
-    }
-    );
+    });
   }
 
   String getTimeHoursByMinutes(int minutes) {

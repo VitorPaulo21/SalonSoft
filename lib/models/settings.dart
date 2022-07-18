@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 part 'settings.g.dart';
@@ -14,7 +15,8 @@ class Settings extends HiveObject {
   int closeMinute;
   @HiveField(4)
   int intervalOfMinutes;
-
+  @HiveField(4)
+  List<int> _stateColors = [];
 
   Settings({
     required this.closeHour,
@@ -22,5 +24,24 @@ class Settings extends HiveObject {
     required this.openHour,
     required this.openMinute,
     required this.intervalOfMinutes,
-  });
+      List<int> stateColorsList = const []}) {
+    if (stateColorsList.isEmpty) {
+      stateColorsList = [
+        Colors.amber.value,
+        Colors.purple.value,
+        Colors.green.value,
+        Colors.red.value,
+        Colors.indigo.value,
+      ];
+      _stateColors = stateColorsList;
+    } else {
+      _stateColors = stateColorsList;
+    }
+  }
+
+  List<Color> getStateColors() {
+    return _stateColors
+        .map<Color>((value) => Color(value).withAlpha(110))
+        .toList();
+  }
 }

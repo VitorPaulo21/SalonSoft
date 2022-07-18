@@ -10,6 +10,7 @@ class DateTimeProvider with ChangeNotifier {
     if (_currentDateTime.year != now.year ||
         _currentDateTime.month != now.month ||
         _currentDateTime.day != now.day) {
+          
       return DateTime(
           _currentDateTime.year, _currentDateTime.month, _currentDateTime.day);
     } else {

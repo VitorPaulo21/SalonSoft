@@ -9,6 +9,7 @@ import 'package:salon_soft/models/worker.dart';
 import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/clients_provider.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
+import 'package:salon_soft/providers/keys_provider.dart';
 import 'package:salon_soft/providers/services_provider.dart';
 import 'package:salon_soft/providers/settings_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
@@ -57,6 +58,12 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<KeysProvider>(
+          lazy: false,
+          create: (ctx) {
+            return KeysProvider();
+          },
+        ),
         ChangeNotifierProvider<WorkerProvider>(
           create: (ctx) {
             return WorkerProvider();

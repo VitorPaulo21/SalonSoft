@@ -4,9 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
+import 'package:salon_soft/providers/keys_provider.dart';
 import 'package:salon_soft/providers/settings_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 
@@ -25,7 +27,37 @@ class AppointmenScreen extends StatefulWidget {
 
 class _AppointmenScreenState extends State<AppointmenScreen> {
   @override
+  void initState() {
+    super.initState();
+    print("Initied State");
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (Provider.of<KeysProvider>(context, listen: false).keys.isNotEmpty) {
+        print("Possui Chaves");
+        if (Provider.of<KeysProvider>(context, listen: false)
+                .keys
+                .values
+                .first
+                .currentContext !=
+            null) {
+          print("Possui Contexto");
+          Scrollable.ensureVisible(
+            Provider.of<KeysProvider>(context, listen: false)
+                .keys
+                .values
+                .first
+                .currentContext!,
+            curve: Curves.fastOutSlowIn,
+            duration: kThemeAnimationDuration,
+          );
+        }
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    print("Builting");
+
     DateTimeProvider dateTimeProvider = Provider.of<DateTimeProvider>(context);
     WorkerProvider workerProvider = Provider.of<WorkerProvider>(context);
     AppointmentProvider appointmentProvider = Provider.of<AppointmentProvider>(
@@ -45,6 +77,8 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
 
   TeamCalendar TeamCalendarGrid(BuildContext context,
       BoxConstraints constraints, int activeWorkersCount) {
+    Provider.of<KeysProvider>(context, listen: false).keys.clear();
+
     WorkerProvider workerProvider =
         Provider.of<WorkerProvider>(context, listen: false);
     DateTimeProvider dateTimeProvider =
@@ -84,7 +118,65 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
                     start: Time(
                         appoint.initialDate.hour, appoint.initialDate.minute),
                     end: Time(appoint.endDate.hour, appoint.endDate.minute),
-                    onTap: () {});
+                    onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (ctx) {
+                        return AlertDialog(
+                          titlePadding:
+                              EdgeInsets.only(left: 24, top: 3, right: 3),
+                          title: Row(
+                            children: [
+                              Text("Agendamento"),
+                              Expanded(child: SizedBox()),
+                              Icon(Icons.edit),
+                              Icon(
+                                Icons.delete_forever_outlined,
+                                color: Colors.red,
+                              ),
+                            ],
+                          ),
+                          content: Container(
+                            width: MediaQuery.of(context).size.width * 0.5 > 400
+                                ? MediaQuery.of(context).size.width * 0.5
+                                : 400,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.person_outline,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  title: Text("Cliente"),
+                                  subtitle: Text(appoint.client.first.name),
+                                ),
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.badge_outlined,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  title: Text("Atendente"),
+                                  subtitle: Text(appoint.worker.first.name),
+                                ),
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.calendar_month_outlined,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  title: Text("Horário"),
+                                  subtitle: Text(
+                                      "${DateFormat("dd/MM/yy").format(appoint.initialDate)} às ${DateFormat("dd/MM/yy").format(appoint.endDate)}"),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      });
+                });
               })
             ],
           );
