@@ -20,6 +20,7 @@ class Worker extends HiveObject {
   });
 
   void syncToHive() {
+    appointments.clear();
     appointments =
         Hive.box<Appointments>("appointments").values.where((appointment) {
       if (key != null) {

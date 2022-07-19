@@ -15,7 +15,7 @@ class Settings extends HiveObject {
   int closeMinute;
   @HiveField(4)
   int intervalOfMinutes;
-  @HiveField(4)
+  @HiveField(5)
   List<int> _stateColors = [];
 
   Settings({

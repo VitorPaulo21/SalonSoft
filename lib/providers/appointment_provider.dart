@@ -45,7 +45,8 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
   @override
   void removeObject(Appointments object) async {
     await object.delete();
-    objectsPrivate.remove(object..worker.first.syncToHive());
+    object.worker.first.syncToHive();
+    objectsPrivate.remove(object);
     notifyListeners();
   }
 
@@ -82,7 +83,8 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
   List<DateTime> avaliableHoursByDurationAtDate(
       {required DateTime date,
       required Duration duration,
-      required Worker worker}) {
+      required Worker worker,
+      Appointments? paramAppointment}) {
     List<DateTime> avaliableDates = [];
     DateTime currentDateTime = DateTime(
       date.year,
@@ -198,9 +200,13 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
   DateTime? nextAvaliableHourByDurationAtDate(
       {required DateTime date,
       required Duration duration,
-      required Worker worker}) {
+      required Worker worker,
+      Appointments? paramAppointment}) {
     List<DateTime> dates = avaliableHoursByDurationAtDate(
-        date: date, duration: duration, worker: worker);
+        date: date,
+        duration: duration,
+        worker: worker,
+        paramAppointment: paramAppointment);
     late DateTime nextDate;
     if (dates.isEmpty) {
       nextDate = date;
