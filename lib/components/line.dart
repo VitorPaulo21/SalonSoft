@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/keys_provider.dart';
 import 'package:salon_soft/providers/settings_provider.dart';
 import '../components/header.dart';
@@ -43,7 +44,6 @@ class LineComponent extends StatelessWidget {
     return Time(dateTime.hour, dateTime.minute);
   }
 
-  
   @override
   Widget build(BuildContext context) {
     double maxHeight =
@@ -98,7 +98,6 @@ class LineComponent extends StatelessWidget {
                       ),
 
                       for (Appointment appointment in line.appointments)
-                        
                         GridItem(
                           appointment,
                           heighPerMinute,
@@ -106,7 +105,8 @@ class LineComponent extends StatelessWidget {
                             GlobalKey Gkey = GlobalKey();
                             Provider.of<KeysProvider>(context, listen: false)
                                 .keys
-                                .putIfAbsent(appointment, () => Gkey);
+                                .putIfAbsent(
+                                    appointment.appointments, () => Gkey);
                             return Gkey;
                           }.call(),
                           context,
@@ -159,6 +159,8 @@ class LineComponent extends StatelessWidget {
   Positioned GridItem(Appointment appointment, double heighPerMinute,
       GlobalKey Gkey, BuildContext context) {
     final ScrollController controller = ScrollController();
+    SettingsProvider settingsProvider =
+        Provider.of<SettingsProvider>(context, listen: false);
     int currentServiceIndex = 0;
     return Positioned(
         key: Gkey,
@@ -181,41 +183,46 @@ class LineComponent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
                 color: Provider.of<SettingsProvider>(context, listen: false)
                     .objectPrivate
-                    .getStateColors()[appointment.situation ?? 0],
+                    .getStateColors()[appointment.appointments.situation ?? 0],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
-                child: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if ((convertTimeToMinutes(appointment.end) -
-                                      convertTimeToMinutes(appointment.start)) *
-                                  heighPerMinute >=
-                              timeSlotHeight)
-                            SizedBox(
-                              height: timeSlotHeight,
-                              child: StatefulBuilder(
-                                builder: (context, setState) => ListTile(
-                                  leading: Icon(Icons.work_outline),
-                                  title: Text(
-                                    appointment
-                                        .service[currentServiceIndex].name,
-                                    softWrap: false,
-                                  ),
-                                  subtitle: Text(
-                                    "${appointment.start.hour.toString().padLeft(2, "0")}:${appointment.start.min.toString().padLeft(2, "0")} ás ${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.min.toString().padLeft(2, "0")}",
-                                    softWrap: false,
-                                  ),
-                                  trailing: !(appointment.service.length > 1)
-                                      ? null
-                                      : Padding(
-                                          padding: const EdgeInsets.only(
-                                              right: 18.0),
-                                          child: FittedBox(
+                child: SingleChildScrollView(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if ((convertTimeToMinutes(appointment.end) -
+                                        convertTimeToMinutes(
+                                            appointment.start)) *
+                                    heighPerMinute >=
+                                timeSlotHeight)
+                              SizedBox(
+                                height: timeSlotHeight,
+                                child: StatefulBuilder(
+                                  builder: (context, setState) => ListTile(
+                                    contentPadding:
+                                        EdgeInsets.only(left: 16, right: 3),
+                                    leading: Icon(Icons.work_outline),
+                                    title: Text(
+                                      appointment.appointments
+                                          .service[currentServiceIndex].name,
+                                      softWrap: false,
+                                    ),
+                                    subtitle: Text(
+                                      "${appointment.start.hour.toString().padLeft(2, "0")}:${appointment.start.min.toString().padLeft(2, "0")} ás ${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.min.toString().padLeft(2, "0")}",
+                                      softWrap: false,
+                                    ),
+                                    trailing: !(appointment
+                                                .appointments.service.length >
+                                            1)
+                                        ? null
+                                        : FittedBox(
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
@@ -235,7 +242,9 @@ class LineComponent extends StatelessWidget {
                                                   onTap: () {
                                                     setState(() {
                                                       if (currentServiceIndex <
-                                                          appointment.service
+                                                          appointment
+                                                                  .appointments
+                                                                  .service
                                                                   .length -
                                                               1) {
                                                         currentServiceIndex++;
@@ -248,55 +257,94 @@ class LineComponent extends StatelessWidget {
                                               ],
                                             ),
                                           ),
-                                        ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          if ((convertTimeToMinutes(appointment.end) -
-                                      convertTimeToMinutes(appointment.start)) *
-                                  heighPerMinute >=
-                              timeSlotHeight)
-                            SizedBox(
-                              height: timeSlotHeight,
-                              child: ListTile(
-                                leading: Icon(Icons.person_outline),
-                                title: Text(
-                                  "Cliente:",
-                                  softWrap: false,
-                                ),
-                                subtitle: Text(
-                                  appointment.client.first.name,
-                                  softWrap: false,
+                            if ((convertTimeToMinutes(appointment.end) -
+                                        convertTimeToMinutes(
+                                            appointment.start)) *
+                                    heighPerMinute >=
+                                timeSlotHeight)
+                              SizedBox(
+                                height: timeSlotHeight,
+                                child: ListTile(
+                                  leading: Icon(Icons.person_outline),
+                                  title: Text(
+                                    "Cliente:",
+                                    softWrap: false,
+                                  ),
+                                  subtitle: Text(
+                                    appointment.appointments.client.first.name,
+                                    softWrap: false,
+                                  ),
                                 ),
                               ),
-                            ),
-                          if (!((convertTimeToMinutes(appointment.end) -
-                                      convertTimeToMinutes(appointment.start)) *
-                                  heighPerMinute >=
-                              timeSlotHeight))
-                            Baseline(
-                              baseline: 18,
-                              baselineType: TextBaseline.alphabetic,
-                              child: Container(
+                            if (!((convertTimeToMinutes(appointment.end) -
+                                        convertTimeToMinutes(
+                                            appointment.start)) *
+                                    heighPerMinute >=
+                                timeSlotHeight))
+                              Baseline(
+                                baseline: 18,
+                                baselineType: TextBaseline.alphabetic,
+                                child: Container(
                                   height: (convertTimeToMinutes(
                                           appointment.end) -
                                       convertTimeToMinutes(appointment.start)),
                                   alignment: Alignment.centerLeft,
                                   padding: EdgeInsets.symmetric(horizontal: 16),
-                                  child: Text(appointment.title)),
-                            )
-                        ],
+                                  child: Text(appointment.title),
+                                ),
+                              )
+                          ],
+                        ),
                       ),
-                    ),
-                    const Positioned(
-                      child: Icon(
-                        Icons.edit_note,
-                        size: 25,
+                      PopupMenuButton<int>(
+                        position: PopupMenuPosition.under,
+                        constraints: BoxConstraints(minWidth: 30, maxWidth: 30),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(90)),
+                        initialValue: 0,
+                        itemBuilder: (context) {
+                          List<PopupMenuItem<int>> entries = [];
+                          for (int i = 0;
+                              i <
+                                  settingsProvider.objectPrivate
+                                      .getStateColors()
+                                      .length;
+                              i++) {
+                            entries.add(
+                              PopupMenuItem(
+                                height: 40,
+                                padding: EdgeInsets.all(0),
+                                value: i,
+                                child: Center(
+                                  child: Container(
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: settingsProvider.objectPrivate
+                                          .getStateColors()[i],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          return entries;
+                        },
                       ),
-                      top: 6,
-                      right: 6,
-                    )
-                  ],
+                      Container(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                        child: const Icon(
+                          Icons.edit_note,
+                          size: 25,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -184,11 +184,17 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
           print("Is After " + isafter.toString());
           print("Is before " + isbefore.toString());
         }
-        return isAtSameMoment ||
+        print(!identical(paramAppointment, appointment));
+        return (isAtSameMoment ||
             isOutside() ||
             isInside() ||
             isafter ||
-            isbefore;
+                isbefore) &&
+            (paramAppointment == null
+                ? true
+                : paramAppointment.worker.first != worker
+                    ? true
+                    : !identical(paramAppointment, appointment));
       });
 
       return containsAny || isAfterMaximum;

@@ -49,6 +49,7 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
                 .currentContext!,
             curve: Curves.fastOutSlowIn,
             duration: kThemeAnimationDuration,
+              alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd
           );
         }
       }
@@ -58,7 +59,6 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
   @override
   Widget build(BuildContext context) {
     print("Builting");
-
     DateTimeProvider dateTimeProvider = Provider.of<DateTimeProvider>(context);
     WorkerProvider workerProvider = Provider.of<WorkerProvider>(context);
     AppointmentProvider appointmentProvider = Provider.of<AppointmentProvider>(

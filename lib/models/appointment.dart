@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:salon_soft/models/appointments.dart';
 import '../models/time.dart';
 
-class Appointment extends Appointments {
+class Appointment{
   final String title;
   final String subtitle;
   final Time start;
@@ -14,10 +14,11 @@ class Appointment extends Appointments {
   final Color color;
   final TextStyle textStyle;
   final TextStyle subtitleStyle;
+  Appointments appointments;
 
 
   Appointment(
-    Appointments appointments, {
+    this.appointments, {
     required this.title,
     this.subtitle = "",
     required this.start,
@@ -32,11 +33,5 @@ class Appointment extends Appointments {
     this.subtitleStyle =
         const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF363636)),
    
-  }) : super(
-          client: appointments.client,
-          endDate: appointments.endDate,
-          initialDate: appointments.initialDate,
-          service: appointments.service,
-          worker: appointments.worker,
-        );
+  });
 }

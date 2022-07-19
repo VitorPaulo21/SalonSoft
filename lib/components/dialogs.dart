@@ -336,14 +336,17 @@ class Dialogs {
                       : StepState.editing,
                   title: Text("Observação"),
                   icon: Icon(Icons.notes),
-                  content: TextField(
-                    maxLines: 3,
-                    maxLength: 100,
-                    controller: obsController,
-                    decoration: InputDecoration(
-                        label: const Text("Observações: "),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15))),
+                  content: Container(
+                    margin: EdgeInsets.only(top: 10),
+                    child: TextField(
+                      maxLines: 3,
+                      maxLength: 100,
+                      controller: obsController,
+                      decoration: InputDecoration(
+                          label: const Text("Observações: "),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15))),
+                    ),
                   ),
                 ),
                 EnhanceStep(
@@ -444,7 +447,11 @@ class Dialogs {
                   ElevatedButton(
                     onPressed: () {
                       if (paramAppointment != null) {
-                        if (formKey.currentState?.validate() ?? false) {
+                        if (paramAppointment.worker.first != currentWorker) {
+                          appointmentProvider.removeObject(paramAppointment);
+                          submitForm();
+                          Navigator.of(context, rootNavigator: true).pop();
+                        } else if (formKey.currentState?.validate() ?? false) {
                           currentDateTime = DateTime(
                             dateTimeProvider.currentDateTime.year,
                             dateTimeProvider.currentDateTime.month,
@@ -469,17 +476,10 @@ class Dialogs {
                                           nextValue.inMinutes,
                                     ),
                                   ));
-                          Appointments newAppointment = Appointments(
-                            worker: paramAppointment.worker,
-                            client: paramAppointment.client,
-                            service: paramAppointment.service,
-                            initialDate: paramAppointment.initialDate,
-                            endDate: paramAppointment.endDate,
-                            description: paramAppointment.description,
-                            situation: paramAppointment.situation,
-                          );
-                          appointmentProvider.removeObject(paramAppointment);
-                          appointmentProvider.addObject(newAppointment);
+                       
+
+                          appointmentProvider.saveData(paramAppointment);
+                          Navigator.of(context, rootNavigator: true).pop();
                           Navigator.of(context, rootNavigator: true).pop();
                         }
                       } else {
