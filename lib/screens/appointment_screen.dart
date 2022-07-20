@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/components/dialogs.dart';
+import 'package:salon_soft/models/appointments.dart';
 import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
 import 'package:salon_soft/providers/keys_provider.dart';
@@ -33,24 +34,56 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
     print("Initied State");
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (Provider.of<KeysProvider>(context, listen: false).keys.isNotEmpty) {
-        print("Possui Chaves");
         if (Provider.of<KeysProvider>(context, listen: false)
                 .keys
                 .values
                 .first
                 .currentContext !=
             null) {
-          print("Possui Contexto");
+          DateTimeProvider dateTimeProvider =
+              Provider.of<DateTimeProvider>(context, listen: false);
+          KeysProvider keysProvider =
+              Provider.of<KeysProvider>(context, listen: false);
+          if (keysProvider.keys.keys.any(
+            (appointment) =>
+                (appointment.initialDate
+                            .compareTo(dateTimeProvider.currentDateTime) >=
+                        0 &&
+                    appointment.endDate
+                        .isAfter(dateTimeProvider.currentDateTime)) ||
+                (appointment.initialDate
+                        .isBefore(dateTimeProvider.currentDateTime) &&
+                    appointment.endDate
+                            .compareTo(dateTimeProvider.currentDateTime) >=
+                        0),
+          )) {
+            Appointments currentAppointment = keysProvider.keys.keys.firstWhere(
+              (appointment) =>
+                  (appointment.initialDate
+                              .compareTo(dateTimeProvider.currentDateTime) >=
+                          0 &&
+                      appointment.endDate
+                          .isAfter(dateTimeProvider.currentDateTime)) ||
+                  (appointment.initialDate
+                          .isBefore(dateTimeProvider.currentDateTime) &&
+                      appointment.endDate
+                              .compareTo(dateTimeProvider.currentDateTime) >=
+                          0),
+            );
           Scrollable.ensureVisible(
-            Provider.of<KeysProvider>(context, listen: false)
-                .keys
-                .values
-                .first
-                .currentContext!,
-            curve: Curves.fastOutSlowIn,
-            duration: kThemeAnimationDuration,
-              alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd
-          );
+                keysProvider.keys[currentAppointment]!.currentContext!,
+                curve: Curves.fastOutSlowIn,
+                duration: kThemeAnimationDuration,
+                alignmentPolicy:
+                    ScrollPositionAlignmentPolicy.keepVisibleAtEnd);
+          } else {
+            Scrollable.ensureVisible(
+                keysProvider.keys.values.last.currentContext!,
+                curve: Curves.fastOutSlowIn,
+                duration: kThemeAnimationDuration,
+                alignmentPolicy:
+                    ScrollPositionAlignmentPolicy.keepVisibleAtEnd);
+          }
         }
       }
     });
@@ -120,171 +153,7 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
                         appoint.initialDate.hour, appoint.initialDate.minute),
                     end: Time(appoint.endDate.hour, appoint.endDate.minute),
                     onTap: () {
-                  showDialog(
-                      context: context,
-                      builder: (ctx) {
-                        return AlertDialog(
-                          titlePadding:
-                              EdgeInsets.only(left: 24, top: 3, right: 3),
-                          title: Stack(
-                            alignment: Alignment.centerRight,
-                            children: [
-                              Row(
-                                children: const [
-                                  Expanded(
-                                      child: Center(
-                                    child: Text(
-                                      "Agendamento:",
-                                    ),
-                                  )),
-                                  Expanded(
-                                      child: Center(
-                                          child: Text(
-                                    "Serviços:",
-                                  ))),
-                                ],
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  InkWell(
-                                      onTap: () {
-                                        Dialogs.addAppointmentDialog(
-                                            context, appoint);
-                                      },
-                                      child: const Icon(Icons.edit)),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  const Icon(
-                                    Icons.delete_forever_outlined,
-                                    color: Colors.red,
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                          content: Container(
-                            alignment: Alignment.topCenter,
-                            width: MediaQuery.of(context).size.width * 0.5 > 400
-                                ? MediaQuery.of(context).size.width * 0.5
-                                : 400,
-                            height: 300,
-                            child: Column(
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Flexible(
-                                      flex: 1,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ListTile(
-                                            leading: Icon(
-                                              Icons.person_outline,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                            ),
-                                            title: Text("Cliente"),
-                                            subtitle:
-                                                Text(appoint.client.first.name),
-                                          ),
-                                          ListTile(
-                                            leading: Icon(
-                                              Icons.badge_outlined,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                            ),
-                                            title: Text("Atendente"),
-                                            subtitle:
-                                                Text(appoint.worker.first.name),
-                                          ),
-                                          ListTile(
-                                            leading: Icon(
-                                              Icons.calendar_month_outlined,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                            ),
-                                            title: Text("Horário"),
-                                            subtitle: Text(
-                                                "${DateFormat("dd/MM/yy").format(appoint.initialDate)} às ${DateFormat("dd/MM/yy").format(appoint.endDate)}"),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 200,
-                                      child: VerticalDivider(
-                                        thickness: 2,
-                                        indent: 5,
-                                        endIndent: 5,
-                                      ),
-                                    ),
-                                    Flexible(
-                                        flex: 1,
-                                        child: SizedBox(
-                                          height: 200,
-                                          child: SingleChildScrollView(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                ...appoint.service
-                                                    .toList()
-                                                    .map<Widget>(
-                                                      (service) => ListTile(
-                                                        leading: Icon(
-                                                          Icons.work_outline,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .primary,
-                                                        ),
-                                                        title:
-                                                            Text(service.name),
-                                                        // subtitle: Text(
-                                                        //     "${service.duration.inMinutes ~/ 60}h : ${service.duration.inMinutes % 60}min"),
-                                                      ),
-                                                    ),
-                                              ],
-                                            ),
-                                          ),
-                                        ))
-                                  ],
-                                ),
-                                Expanded(
-                                    child: TextField(
-                                  readOnly: true,
-                                  maxLines: 3,
-                                  decoration: InputDecoration(
-                                    label: const Text("Descrião: "),
-                                    // prefixText: "Descrição: ",
-                                    // prefixIcon: Icon(Icons.list),
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 15,
-                                        top: 24,
-                                        right: 15,
-                                        bottom: 16),
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12)),
-                                  ),
-                                  controller: TextEditingController()
-                                    ..text = appoint.description ?? "",
-                                )),
-                              ],
-                            ),
-                          ),
-                        );
-                      });
+                  Dialogs.appointmentDetailsDialog(context, appoint);
                 });
               })
             ],

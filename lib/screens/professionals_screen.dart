@@ -304,9 +304,11 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
       BuildContext context) async {
     String newPath = "";
     if (imageProfile != null) {
-      Directory directory = await getApplicationDocumentsDirectory();
+      Directory directory = Directory(Platform.resolvedExecutable
+              .substring(0, Platform.resolvedExecutable.lastIndexOf("\\")) +
+          "\\UserImages");
       Directory finalDirectory =
-          Directory("${directory.path}\\SalonSoft\\ProfileImages");
+          Directory("${directory.path}\\ProfileImages");
       if (!(await finalDirectory.exists())) {
         await finalDirectory.create(recursive: true);
       }

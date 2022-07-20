@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
@@ -18,10 +20,13 @@ import 'package:salon_soft/screens/home_screen.dart';
 import 'package:salon_soft/screens/professionals_screen.dart';
 import 'package:salon_soft/utils/routes.dart';
 import 'package:desktop_window/desktop_window.dart';
+import 'package:path_provider/path_provider.dart' as pathProvider;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
+  await Hive.initFlutter(Platform.resolvedExecutable
+          .substring(0, Platform.resolvedExecutable.lastIndexOf("\\")) +
+      "\\DataBase");
   Hive.registerAdapter(AppointmentsAdapter());
   Hive.registerAdapter(ClientAdapter());
   Hive.registerAdapter(ServiceAdapter());

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:provider/provider.dart';
+import 'package:salon_soft/models/appointments.dart';
 import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/keys_provider.dart';
 import 'package:salon_soft/providers/settings_provider.dart';
@@ -10,6 +12,7 @@ import '../models/appointment.dart';
 import '../models/line.dart';
 import '../models/time.dart';
 import '../utils/slot.dart';
+import 'appointment_state_selector.dart';
 
 class LineComponent extends StatelessWidget {
   final ScrollController scroll;
@@ -207,7 +210,7 @@ class LineComponent extends StatelessWidget {
                                 child: StatefulBuilder(
                                   builder: (context, setState) => ListTile(
                                     contentPadding:
-                                        EdgeInsets.only(left: 16, right: 3),
+                                        EdgeInsets.only(left: 16, right: 0),
                                     leading: Icon(Icons.work_outline),
                                     title: Text(
                                       appointment.appointments
@@ -299,48 +302,21 @@ class LineComponent extends StatelessWidget {
                           ],
                         ),
                       ),
-                      PopupMenuButton<int>(
-                        position: PopupMenuPosition.under,
-                        constraints: BoxConstraints(minWidth: 30, maxWidth: 30),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(90)),
-                        initialValue: 0,
-                        itemBuilder: (context) {
-                          List<PopupMenuItem<int>> entries = [];
-                          for (int i = 0;
-                              i <
-                                  settingsProvider.objectPrivate
-                                      .getStateColors()
-                                      .length;
-                              i++) {
-                            entries.add(
-                              PopupMenuItem(
-                                height: 40,
-                                padding: EdgeInsets.all(0),
-                                value: i,
-                                child: Center(
-                                  child: Container(
-                                    width: 20,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: settingsProvider.objectPrivate
-                                          .getStateColors()[i],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                          return entries;
-                        },
+                      AppointmentStateSelector(
+                        appointment: appointment.appointments,
+                        elevation: 0,
+                        borderColor: Colors.grey[600]!,
+                        borderWidth: 2,
+                        iconColor: Colors.grey[600]!,
                       ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                        child: const Icon(
-                          Icons.edit_note,
-                          size: 25,
+                      Tooltip(
+                        message: "Detalhes",
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8, top: 8),
+                          child: const Icon(
+                            Icons.edit_note,
+                            size: 25,
+                          ),
                         ),
                       ),
                     ],
@@ -352,3 +328,4 @@ class LineComponent extends StatelessWidget {
         ));
   }
 }
+

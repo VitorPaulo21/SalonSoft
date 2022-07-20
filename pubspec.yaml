@@ -42,6 +42,7 @@ dependencies:
   enhance_stepper: ^0.1.1
   flutter_typeahead: ^4.0.0
   badges: ^2.0.3
+  just_the_tooltip: ^0.0.12
   # team_calendar: ^0.0.1
 
 
