@@ -17,7 +17,13 @@ class WorkerProvider extends CrudHiveProviderInterface<Worker> {
       element.syncToHive();
     });
   }
-
+  @override
+  void removeObject(Worker worker) {
+   
+    objectsPrivate.remove(worker);
+    notifyListeners();
+    worker.delete();
+  }
   @override
   void removeAllObjects() {
     objectsPrivate.forEach((worker) {
