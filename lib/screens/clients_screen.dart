@@ -6,8 +6,12 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/components/circular_percentage_chart.dart';
+import 'package:salon_soft/models/appointment.dart';
+import 'package:salon_soft/models/appointments.dart';
 import 'package:salon_soft/models/client.dart';
+import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/clients_provider.dart';
+import 'package:salon_soft/providers/date_time_provider.dart';
 
 class ClientsScreen extends StatefulWidget {
   const ClientsScreen({Key? key}) : super(key: key);
@@ -23,6 +27,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
   @override
   Widget build(BuildContext context) {
     clients = Provider.of<ClientsProvider>(context).objects;
+    DateTimeProvider dateTimeProvider = Provider.of<DateTimeProvider>(context);
     clients = clients
         .where(
             (client) => client.name.toLowerCase().contains(query.toLowerCase()))
@@ -59,6 +64,29 @@ class _ClientsScreenState extends State<ClientsScreen> {
   }
 
   Widget clientGridItem(BuildContext context, int index) {
+    AppointmentProvider appointmentProvider =
+        Provider.of<AppointmentProvider>(context, listen: false);
+    DateTimeProvider dateTimeProvider =
+        Provider.of<DateTimeProvider>(context, listen: false);
+    List<Appointments> todayAppointments = appointmentProvider
+        .getAppointmensByDate(dateTimeProvider.currentDateTime);
+    int appointmentsInMinutes(List<Appointments> appoints) {
+      return appoints
+          .map<int>((appointment) =>
+              appointment.initialDate.difference(appointment.endDate).inMinutes)
+          .fold<int>(0, (previousValue, element) => previousValue + element);
+    }
+
+    int todayAppointmentsInMinutes = appointmentsInMinutes(todayAppointments);
+    int todayClientAppointmentsInMinutes = appointmentsInMinutes(
+        todayAppointments
+            .where(
+                (appointment) => appointment.client.first == clients[index - 1])
+            .toList());
+    if (todayAppointmentsInMinutes == 0) {
+      todayAppointmentsInMinutes = 1;
+      todayClientAppointmentsInMinutes = 0;
+    }
     return Stack(
       children: [
         Stack(
@@ -86,8 +114,8 @@ class _ClientsScreenState extends State<ClientsScreen> {
                     ),
                   ),
                   CircularPercentageChart(
-                      allValue: 250,
-                      percentageValue: Random().nextInt(250),
+                      allValue: todayAppointmentsInMinutes,
+                      percentageValue: todayClientAppointmentsInMinutes,
                       allvalueLegend: "Atendimentos",
                       percentualValueLegend: "Este Cliente"),
                   FittedBox(

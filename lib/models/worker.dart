@@ -19,6 +19,16 @@ class Worker extends HiveObject {
     this.isActive = true,
   });
 
+  List<Appointments> getAppointmensByDate(DateTime date) {
+    return appointments
+        .where((appointment) =>
+            (appointment.initialDate.day == date.day &&
+                appointment.initialDate.month == date.month &&
+                appointment.initialDate.year == date.year) &&
+            (isActive ?? false))
+        .toList();
+  }
+
   void syncToHive() {
     appointments.clear();
     appointments =

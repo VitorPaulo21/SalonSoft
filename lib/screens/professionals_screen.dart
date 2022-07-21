@@ -8,12 +8,15 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/models/worker.dart';
+import 'package:salon_soft/providers/appointment_provider.dart';
+import 'package:salon_soft/providers/date_time_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../components/circular_percentage_chart.dart';
 import '../components/titled_icon_button.dart';
+import '../models/appointments.dart';
 import '../utils/routes.dart';
 
 class ProfessionalsScreen extends StatefulWidget {
@@ -28,6 +31,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
   Widget build(BuildContext context) {
     
     WorkerProvider workerProvider = Provider.of<WorkerProvider>(context);
+    DateTimeProvider dateTimeProvider = Provider.of<DateTimeProvider>(context);
     
     return GridView(
       padding: const EdgeInsets.all(10.0),
@@ -136,7 +140,28 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
   Container WorkerGridItem(
       Worker worker, BuildContext context) {
     File file = File(worker.photoPath);
+    AppointmentProvider appointmentProvider =
+        Provider.of<AppointmentProvider>(context, listen: false);
+    DateTimeProvider dateTimeProvider =
+        Provider.of<DateTimeProvider>(context, listen: false);
+    List<Appointments> todayAppointments = appointmentProvider
+        .getAppointmensByDate(dateTimeProvider.currentDateTime);
+    int appointmentsInMinutes(List<Appointments> appoints) {
+      return appoints
+          .map<int>((appointment) =>
+              appointment.initialDate.difference(appointment.endDate).inMinutes)
+          .fold<int>(0, (previousValue, element) => previousValue + element);
+    }
 
+    int todayAppointmentsInMinutes = appointmentsInMinutes(todayAppointments);
+    int todayClientAppointmentsInMinutes = appointmentsInMinutes(
+        todayAppointments
+            .where((appointment) => appointment.worker.first == worker)
+            .toList());
+    if (todayAppointmentsInMinutes == 0) {
+      todayAppointmentsInMinutes = 1;
+      todayClientAppointmentsInMinutes = 0;
+    }
     return Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -189,10 +214,10 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
               ),
             ),
           ),
-          const Expanded(
+          Expanded(
               child: CircularPercentageChart(
-            allValue: 100,
-            percentageValue: 20,
+            allValue: todayAppointmentsInMinutes,
+            percentageValue: todayClientAppointmentsInMinutes,
             allvalueLegend: "Total de Atendimentos",
             percentualValueLegend: "Este Proficional",
           ))

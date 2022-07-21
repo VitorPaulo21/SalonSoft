@@ -23,7 +23,10 @@ class DateTimeProvider with ChangeNotifier {
       );
     }
   }
-
+  DateTime get currentDateTimeWithoutHourMinute {
+    return DateTime(
+        _currentDateTime.year, _currentDateTime.month, _currentDateTime.day);
+  }
   set currentDateTime(DateTime date) {
     DateTime now = DateTime.now();
     if (date.year != now.year ||

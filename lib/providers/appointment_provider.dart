@@ -53,9 +53,11 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
   List<Appointments> getAppointmensByDate(DateTime date) {
     return objects
         .where((appointment) =>
+            (
             appointment.initialDate.day == date.day &&
             appointment.initialDate.month == date.month &&
-            appointment.initialDate.year == date.year)
+                appointment.initialDate.year == date.year) &&
+            (appointment.worker.first.isActive ?? true))
         .toList();
   }
 
@@ -121,8 +123,7 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
         dateTime.hour,
         dateTime.minute,
       );
-      toCheckDate =
-          toCheckDate.add(Duration(minutes: duration.inMinutes));
+      toCheckDate = toCheckDate.add(Duration(minutes: duration.inMinutes));
       int closeHour = settingsProvider!.objectPrivate.closeHour;
       int closeMinute = settingsProvider!.objectPrivate.closeMinute;
       bool isAfterMaximum = toCheckDate.compareTo(DateTime(dateTime.year,
@@ -161,37 +162,37 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
                   appointment.endDate.isAtSameMomentAs(toCheckDate);
           return isInsideTotal || isPartialInsideInit || isPartialInsideEnd;
         }
-        
+
         bool isafter = appointment.initialDate.isBefore(toCheckDate) &&
             appointment.initialDate.isAfter(dateTime);
 
         bool isbefore = appointment.endDate.isAfter(dateTime) &&
             appointment.endDate.isBefore(toCheckDate);
-        if (isAtSameMoment ||
-            isOutside() ||
-            isInside() ||
-            isafter ||
-            isbefore) {
-          print(DateFormat("dd/MM/yyyy HH:mm").format(dateTime));
-          print(DateFormat("dd/MM/yyyy HH:mm").format(toCheckDate));
-          print(DateFormat("dd/MM/yyyy HH:mm").format(appointment.initialDate) +
-              " - Appointment Initial Date");
-          print(DateFormat("dd/MM/yyyy HH:mm").format(appointment.endDate) +
-              " - Appointment End Date");
-          print("Is at same moment " + isAtSameMoment.toString());
-          print("Is Outside " + isOutside().toString());
-          print("Is Inside " + isInside().toString());
-          print("Is After " + isafter.toString());
-          print("Is before " + isbefore.toString());
-        }
-        print(!identical(paramAppointment, appointment));
+        // if (isAtSameMoment ||
+        //     isOutside() ||
+        //     isInside() ||
+        //     isafter ||
+        //     isbefore) {
+        // print(DateFormat("dd/MM/yyyy HH:mm").format(dateTime));
+        // print(DateFormat("dd/MM/yyyy HH:mm").format(toCheckDate));
+        // print(DateFormat("dd/MM/yyyy HH:mm").format(appointment.initialDate) +
+        //     " - Appointment Initial Date");
+        // print(DateFormat("dd/MM/yyyy HH:mm").format(appointment.endDate) +
+        //     " - Appointment End Date");
+        // print("Is at same moment " + isAtSameMoment.toString());
+        // print("Is Outside " + isOutside().toString());
+        // print("Is Inside " + isInside().toString());
+        // print("Is After " + isafter.toString());
+        // print("Is before " + isbefore.toString());
+        // }
+        // print(!identical(paramAppointment, appointment));
         return (isAtSameMoment ||
-            isOutside() ||
-            isInside() ||
-            isafter ||
+                isOutside() ||
+                isInside() ||
+                isafter ||
                 isbefore) &&
             (paramAppointment == null
-                ? true
+                ? false
                 : paramAppointment.worker.first != worker
                     ? true
                     : !identical(paramAppointment, appointment));
@@ -199,7 +200,7 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
 
       return containsAny || isAfterMaximum;
     });
-    print(avaliableDates.toString());
+    // print(avaliableDates.toString());
     return avaliableDates;
   }
 
@@ -213,15 +214,23 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
         duration: duration,
         worker: worker,
         paramAppointment: paramAppointment);
+    print(dates.toString());
+    print(DateFormat("dd/HH/yyyy HH:mm").format(date));
+    print(paramAppointment == null);
+    
     late DateTime nextDate;
     if (dates.isEmpty) {
+      print(1);
       nextDate = date;
     } else if (dates[0].isAtSameMomentAs(date)) {
+      print(2);
       nextDate = date;
-    } else if (dates.any((dateItem) => dateItem.isAfter(date))) {
-      nextDate = dates.firstWhere((dateItem) => dateItem.isAfter(date));
+    } else if (dates.any((dateItem) => dateItem.compareTo(date) >= 0)) {
+      print(3);
+      nextDate = dates.firstWhere((dateItem) => dateItem.compareTo(date) >= 0);
     } else {
-      return dates
+      print(4);
+      nextDate = dates
           .lastWhere((dateItem) => dateItem.compareTo(date.add(duration)) <= 0)
           .subtract(duration);
     }

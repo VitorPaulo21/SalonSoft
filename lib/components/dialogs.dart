@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/components/appointment_state_selector.dart';
 import 'package:salon_soft/models/appointments.dart';
+import 'package:salon_soft/models/settings.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
 import 'package:salon_soft/providers/services_provider.dart';
 import 'package:salon_soft/providers/settings_provider.dart';
@@ -228,7 +229,9 @@ class Dialogs {
                       : "Profissional - ${currentWorker!.name}"),
                   icon: Icon(Icons.badge_outlined),
                   content: dropdownRoundBorder<Worker>(
-                    objects: workerProvider.objects,
+                    objects: workerProvider.objects
+                        .where((worker) => worker.isActive ?? true)
+                        .toList(),
                     setState: setState,
                   ),
                 ),
@@ -509,6 +512,18 @@ class Dialogs {
       DateTime? currentDateTime,
       Appointments? paramAppointment) {
     return StatefulBuilder(builder: (context, setState) {
+      Settings settings =
+          Provider.of<SettingsProvider>(context, listen: false).objectPrivate;
+      if (dateTimeProvider.currentDateTime.compareTo(DateTime(
+            dateTimeProvider.currentDateTime.year,
+            dateTimeProvider.currentDateTime.month,
+            dateTimeProvider.currentDateTime.day,
+            settings.closeHour,
+            settings.closeMinute,
+          )) >=
+          0) {
+        nextAvaliableHour = false;
+      }
       if (nextAvaliableHour &&
           currentServices.isNotEmpty &&
           currentWorker != null) {
