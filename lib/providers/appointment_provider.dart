@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/number_symbols_data.dart';
 import 'package:salon_soft/Interfaces/crud_hive_provider_interface.dart';
 import 'package:salon_soft/models/appointment.dart';
 import 'package:salon_soft/models/service.dart';
@@ -99,15 +100,11 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
     DateTime currentDate = DateTime(openDate.year, openDate.month, openDate.day,
         openDate.hour, openDate.minute);
 
-    while (currentDate.compareTo(closeDate) >= 0) {
-      int loops = 0;
-
-      loops++;
-      if (loops == 200) {
-        break;
-      }
+    while (currentDate.compareTo(closeDate) < 0) {
+      currentDate = currentDate.add(
+          Duration(minutes: settingsProvider!.objectPrivate.intervalOfMinutes));
+      avaliableDates.add(currentDate);
     }
-    print(avaliableDates.toString());
     return avaliableDates;
   }
   List<DateTime> avaliableHoursByDurationAtDate(
@@ -116,6 +113,7 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
       required Worker worker,
       Appointments? paramAppointment}) {
     List<DateTime> avaliableHours = [];
+
     DateTime openDate = DateTime(
       date.year,
       date.month,
@@ -130,6 +128,8 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
       settingsProvider!.objectPrivate.closeHour,
       settingsProvider!.objectPrivate.closeMinute,
     );
+    List<DateTime> allDailyTimes = getAvaliableDatesAtDailyRangeBYDate(date);
+    //Obtendo Agendamentos do funcionario de acordo com a data
     List<Appointments> workerAppointments = worker.getAppointmensByDate(date)
       ..remove(paramAppointment)
       ..removeWhere(
@@ -139,7 +139,12 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
             (appoint.initialDate.isBefore(closeDate) &&
                 (appoint.endDate.compareTo(closeDate) <= 0)),
       );
-    getAvaliableDatesAtDailyRangeBYDate(date);
+    //Se o funcionario nao tiver agendamentos hoje retorna todos os horaios
+    if (workerAppointments.isEmpty) {
+      return allDailyTimes;
+    } else {
+      for (Appointments appointment in workerAppointments) {}
+    }
     return avaliableHours;
   }
 
