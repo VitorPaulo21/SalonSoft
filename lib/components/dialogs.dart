@@ -26,8 +26,9 @@ class Dialogs {
   }
 
   static Future<dynamic> addAppointmentDialog(
-      BuildContext context, Appointments? paramAppointment) {
-    Worker? currentWorker;
+      BuildContext context,
+      Appointments? paramAppointment, Worker? selectedWorker) {
+    Worker? currentWorker = selectedWorker;
     Client? currentClient;
     List<Service> currentServices = [];
     DateTime? currentDateTime;
@@ -37,7 +38,8 @@ class Dialogs {
       currentDateTime = paramAppointment.initialDate;
       currentServices = paramAppointment.service;
     }
-    int currentStep = 0;
+    int currentStep =
+        selectedWorker != null && paramAppointment == null ? 1 : 0;
     Widget dropdownRoundBorder<T>({
       required List<T> objects,
       required StateSetter setState,
@@ -789,7 +791,8 @@ class Dialogs {
                         message: "Editar",
                         child: InkWell(
                             onTap: () {
-                              Dialogs.addAppointmentDialog(context, appoint);
+                              Dialogs.addAppointmentDialog(
+                                  context, appoint, null);
                             },
                             child: const Icon(Icons.edit)),
                       ),

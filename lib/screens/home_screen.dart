@@ -177,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
               appointmentProvider.removeAllObjects();
             },
             onPressed: () {
-              Dialogs.addAppointmentDialog(context, null);
+              Dialogs.addAppointmentDialog(context, null, null);
             },
             child: const TitledIcon(
               title: "Adicionar",

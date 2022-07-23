@@ -136,6 +136,7 @@ class _AppointmenScreenState extends State<AppointmenScreen> {
             header: Header(
               title: worker.name,
               photoPath: worker.photoPath,
+              worker: worker,
             ),
             appointments: [
               ...worker.appointments

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/models/appointments.dart';
+import 'package:salon_soft/models/worker.dart';
 import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/keys_provider.dart';
 import 'package:salon_soft/providers/settings_provider.dart';
@@ -25,6 +26,7 @@ class LineComponent extends StatelessWidget {
   final Time startTime;
   final Time endTime;
   final double headerHeight;
+
   const LineComponent({
     Key? key,
     required this.line,
@@ -37,6 +39,7 @@ class LineComponent extends StatelessWidget {
     required this.startTime,
     required this.endTime,
     required this.scroll,
+    
   }) : super(key: key);
 
   double convertTimeToMinutes(Time time) {
@@ -153,6 +156,7 @@ class LineComponent extends StatelessWidget {
             header: line.header,
             height: headerHeight,
             width: width,
+            worker: line.header.worker,
           ),
         ),
       ],

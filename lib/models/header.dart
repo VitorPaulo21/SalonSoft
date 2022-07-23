@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:salon_soft/models/worker.dart';
 
 class Header {
   final String title;
@@ -15,6 +16,8 @@ class Header {
 
   final TextStyle subtitleStyle;
 
+  final Worker worker;
+
   final Color color;
   String photoPath;
 
@@ -30,5 +33,6 @@ class Header {
         color: Colors.black, fontWeight: FontWeight.w400, fontSize: 13),
     this.subtitleStyle = const TextStyle(
         color: Color(0xFFA1A1A0), fontWeight: FontWeight.w300, fontSize: 10),
+    required this.worker,
   });
 }

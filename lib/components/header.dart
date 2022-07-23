@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:salon_soft/components/dialogs.dart';
+import 'package:salon_soft/models/worker.dart';
 import '../models/header.dart';
 
 class HeaderComponent extends StatelessWidget {
@@ -10,6 +12,7 @@ class HeaderComponent extends StatelessWidget {
   final double height;
   final Color borderColor;
   final Color backgroundColor;
+  final Worker worker;
 
   const HeaderComponent({
     Key? key,
@@ -18,6 +21,7 @@ class HeaderComponent extends StatelessWidget {
     required this.width,
     this.backgroundColor = Colors.white,
     this.borderColor = const Color(0xFF353433),
+    required this.worker,
   }) : super(key: key);
 
   @override
@@ -50,6 +54,15 @@ class HeaderComponent extends StatelessWidget {
                 : null,
           ),
           title: Text(header.title),
+          trailing: InkWell(
+            onTap: () {
+              Dialogs.addAppointmentDialog(context, null, worker);
+            },
+            child: Tooltip(
+              message: "Adicionar Agendamento",
+              child: Icon(Icons.playlist_add_rounded),
+            ),
+          ),
         ),
       ),
     );
