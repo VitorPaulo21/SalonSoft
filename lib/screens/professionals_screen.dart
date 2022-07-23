@@ -7,15 +7,18 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
+import 'package:salon_soft/models/appointment.dart';
 import 'package:salon_soft/models/worker.dart';
 import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
+import 'package:salon_soft/providers/settings_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../components/circular_percentage_chart.dart';
 import '../components/titled_icon_button.dart';
+import '../components/worker_rounded_photo.dart';
 import '../models/appointments.dart';
 import '../utils/routes.dart';
 
@@ -29,10 +32,9 @@ class ProfessionalsScreen extends StatefulWidget {
 class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
   @override
   Widget build(BuildContext context) {
-    
     WorkerProvider workerProvider = Provider.of<WorkerProvider>(context);
     DateTimeProvider dateTimeProvider = Provider.of<DateTimeProvider>(context);
-    
+
     return GridView(
       padding: const EdgeInsets.all(10.0),
       shrinkWrap: true,
@@ -46,9 +48,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
       ),
       children: [
         addWorkerGridItem(context),
-        ...workerProvider.objects
-            .map<Widget>((worker) {
-        
+        ...workerProvider.objects.map<Widget>((worker) {
           return Card(
             elevation: 5,
             shape: const RoundedRectangleBorder(
@@ -87,9 +87,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
               ],
             ),
           );
-        })
-            .toList(),
-        
+        }).toList(),
       ],
     );
   }
@@ -137,8 +135,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
     ]);
   }
 
-  Container WorkerGridItem(
-      Worker worker, BuildContext context) {
+  Container WorkerGridItem(Worker worker, BuildContext context) {
     File file = File(worker.photoPath);
     AppointmentProvider appointmentProvider =
         Provider.of<AppointmentProvider>(context, listen: false);
@@ -184,23 +181,9 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
               ],
             ),
           ),
-          Container(
-            width: 95,
-            height: 95,
-            child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(90)),
-                child: Image.file(
-                  file,
-                  fit: BoxFit.cover,
-                  key: UniqueKey(),
-                )),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.purple,
-                width: 4,
-              ),
-            ),
+          WorkerRoundedPhoto(
+            file: file,
+            worker: worker,
           ),
           Container(
             alignment: Alignment.center,
@@ -260,8 +243,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
                       },
                       child: CircleAvatar(
                         maxRadius: 50,
-                        backgroundColor:
-                            imageProfile == null
+                        backgroundColor: imageProfile == null
                             ? Colors.grey[300]
                             : Colors.transparent,
                         foregroundImage: imageProfile != null
@@ -332,8 +314,7 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
       Directory directory = Directory(Platform.resolvedExecutable
               .substring(0, Platform.resolvedExecutable.lastIndexOf("\\")) +
           "\\UserImages");
-      Directory finalDirectory =
-          Directory("${directory.path}\\ProfileImages");
+      Directory finalDirectory = Directory("${directory.path}\\ProfileImages");
       if (!(await finalDirectory.exists())) {
         await finalDirectory.create(recursive: true);
       }
@@ -426,14 +407,11 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
                     SizedBox(
                       height: 5,
                     ),
-                    
                   ],
                 ),
               ),
               actionsAlignment: MainAxisAlignment.spaceBetween,
               actions: [
-                
-                
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -535,4 +513,5 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
     });
   }
 }
+
 

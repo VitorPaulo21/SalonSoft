@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:salon_soft/components/dialogs.dart';
+import 'package:salon_soft/components/worker_rounded_photo.dart';
 import 'package:salon_soft/models/worker.dart';
 import '../models/header.dart';
 
@@ -38,20 +39,11 @@ class HeaderComponent extends StatelessWidget {
             borderRadius: BorderRadius.all(Radius.circular(15))),
         elevation: 5,
         child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: header.photoPath.isEmpty
-                ? Colors.grey[300]
-                : Colors.transparent,
-            foregroundImage: header.photoPath.isNotEmpty
-                ? FileImage(File(header.photoPath))
-                : null,
-            child: header.photoPath == null
-                ? const Icon(
-                    Icons.add_a_photo_outlined,
-                    color: Colors.grey,
-                    size: 30,
-                  )
-                : null,
+          leading: WorkerRoundedPhoto(
+            file: File(worker.photoPath),
+            worker: worker,
+            size: 35,
+            borderWidth: 2,
           ),
           title: Text(header.title),
           trailing: InkWell(
