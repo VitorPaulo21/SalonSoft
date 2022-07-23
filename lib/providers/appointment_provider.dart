@@ -83,27 +83,15 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
   }
   List<DateTime> getAvaliableDatesAtDailyRangeBYDate(DateTime date) {
     List<DateTime> avaliableDates = [];
-    DateTime openDate = DateTime(
-      date.year,
-      date.month,
-      date.day,
-      settingsProvider!.objectPrivate.openHour,
-      settingsProvider!.objectPrivate.openMinute,
-    );
-    DateTime closeDate = DateTime(
-      date.year,
-      date.month,
-      date.day,
-      settingsProvider!.objectPrivate.closeHour,
-      settingsProvider!.objectPrivate.closeMinute,
-    );
+    DateTime openDate = _openTimeFromDate(date);
+    DateTime closeDate = _closeTimeFromDate(date);
     DateTime currentDate = DateTime(openDate.year, openDate.month, openDate.day,
         openDate.hour, openDate.minute);
 
     while (currentDate.compareTo(closeDate) < 0) {
+      avaliableDates.add(currentDate);
       currentDate = currentDate.add(
           Duration(minutes: settingsProvider!.objectPrivate.intervalOfMinutes));
-      avaliableDates.add(currentDate);
     }
     return avaliableDates;
   }
@@ -112,38 +100,51 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
       required Duration duration,
       required Worker worker,
       Appointments? paramAppointment}) {
+
     List<DateTime> avaliableHours = [];
 
-    DateTime openDate = DateTime(
-      date.year,
-      date.month,
-      date.day,
-      settingsProvider!.objectPrivate.openHour,
-      settingsProvider!.objectPrivate.openMinute,
-    );
-    DateTime closeDate = DateTime(
-      date.year,
-      date.month,
-      date.day,
-      settingsProvider!.objectPrivate.closeHour,
-      settingsProvider!.objectPrivate.closeMinute,
-    );
+    DateTime openDate = _openTimeFromDate(date);
+
+    DateTime closeDate = _closeTimeFromDate(date);
+
     List<DateTime> allDailyTimes = getAvaliableDatesAtDailyRangeBYDate(date);
+
     //Obtendo Agendamentos do funcionario de acordo com a data
     List<Appointments> workerAppointments = worker.getAppointmensByDate(date)
       ..remove(paramAppointment)
       ..removeWhere(
         (appoint) =>
-            ((appoint.initialDate.compareTo(openDate) >= 0) &&
-                appoint.endDate.isAfter(openDate)) ||
-            (appoint.initialDate.isBefore(closeDate) &&
-                (appoint.endDate.compareTo(closeDate) <= 0)),
+            ((appoint.initialDate.compareTo(closeDate) >= 0) &&
+                appoint.endDate.isAfter(closeDate)) ||
+            (appoint.initialDate.isBefore(openDate) &&
+                (appoint.endDate.compareTo(openDate) <= 0)),
       );
+
     //Se o funcionario nao tiver agendamentos hoje retorna todos os horaios
     if (workerAppointments.isEmpty) {
-      return allDailyTimes;
+      avaliableHours.addAll(allDailyTimes);
     } else {
-      for (Appointments appointment in workerAppointments) {}
+      for (DateTime dateInList in allDailyTimes) {
+        bool matchAnyAppointment = workerAppointments.any((appoint) {
+          if (_isDateOutAppointment(
+              initialDate: dateInList,
+              endDate: dateInList.add(duration),
+              appointment: appoint)) {
+            return false;
+          } else if (dateInList.compareTo(appoint.initialDate) <= 0 &&
+              dateInList.add(duration).compareTo(appoint.endDate) >= 0) {
+            return true;
+          } else if (dateInList.isAfter(appoint.initialDate) ||
+              dateInList.add(duration).isBefore(appoint.endDate)) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        if (!matchAnyAppointment) {
+          avaliableHours.add(dateInList);
+        }
+      }
     }
     return avaliableHours;
   }
@@ -158,27 +159,54 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
         duration: duration,
         worker: worker,
         paramAppointment: paramAppointment);
-    print(dates.toString());
-    print(DateFormat("dd/HH/yyyy HH:mm").format(date));
-    print(paramAppointment == null);
+   
 
     late DateTime nextDate;
     if (dates.isEmpty) {
-      print(1);
+   
       nextDate = date;
     } else if (dates[0].isAtSameMomentAs(date)) {
-      print(2);
+  
       nextDate = date;
     } else if (dates.any((dateItem) => dateItem.compareTo(date) >= 0)) {
-      print(3);
+
       nextDate = dates.firstWhere((dateItem) => dateItem.compareTo(date) >= 0);
     } else {
-      print(4);
+
       nextDate = dates
           .lastWhere((dateItem) => dateItem.compareTo(date.add(duration)) <= 0)
           .subtract(duration);
     }
 
     return nextDate;
+  }
+  DateTime _closeTimeFromDate(DateTime date) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      settingsProvider!.objectPrivate.closeHour,
+      settingsProvider!.objectPrivate.closeMinute,
+    );
+  }
+
+  DateTime _openTimeFromDate(DateTime date) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      settingsProvider!.objectPrivate.openHour,
+      settingsProvider!.objectPrivate.openMinute,
+    );
+  }
+
+  bool _isDateOutAppointment(
+      {required DateTime initialDate,
+      required DateTime endDate,
+      required Appointments appointment}) {
+    return ((initialDate.isBefore(appointment.initialDate)) &&
+            (endDate.compareTo(appointment.initialDate) <= 0)) ||
+        ((initialDate.compareTo(appointment.endDate) >= 0) &&
+            endDate.isAfter(appointment.endDate));
   }
 }

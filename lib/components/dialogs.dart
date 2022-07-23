@@ -555,7 +555,20 @@ class Dialogs {
         minuteController.text = "";
         currentDateTime = null;
       }
-
+      List<DateTime> avaliableDatesToAppointments = currentWorker == null ||
+              currentServices.isEmpty
+          ? []
+          : appointmentProvider.avaliableHoursByDurationAtDate(
+              date: dateTimeProvider.currentDateTime,
+              duration: currentServices
+                  .map<Duration>((service) => service.duration)
+                  .reduce(
+                    (previousValue, nextValue) => Duration(
+                      minutes: previousValue.inMinutes + nextValue.inMinutes,
+                    ),
+                  ),
+              worker: currentWorker,
+              paramAppointment: paramAppointment);
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -598,20 +611,7 @@ class Dialogs {
                     suggestionsCallback: (query) {
                       return currentServices.isEmpty
                           ? []
-                          : appointmentProvider
-                              .avaliableHoursByDurationAtDate(
-                                  date: dateTimeProvider.currentDateTime,
-                                  duration: currentServices
-                                      .map<Duration>(
-                                          (service) => service.duration)
-                                      .reduce(
-                                        (previousValue, nextValue) => Duration(
-                                          minutes: previousValue.inMinutes +
-                                              nextValue.inMinutes,
-                                        ),
-                                      ),
-                                  worker: currentWorker,
-                                  paramAppointment: paramAppointment)
+                          : avaliableDatesToAppointments
                               .where(
                                 (date) => query.isEmpty
                                     ? true
@@ -655,19 +655,7 @@ class Dialogs {
                         return "Selecionar Serviço!";
                       } else if (int.tryParse(txt!) == null) {
                         return "Valor Inválido";
-                      } else if (!appointmentProvider
-                          .avaliableHoursByDurationAtDate(
-                              date: dateTimeProvider.currentDateTime,
-                              duration: currentServices
-                                  .map<Duration>((service) => service.duration)
-                                  .reduce(
-                                    (previousValue, nextValue) => Duration(
-                                      minutes: previousValue.inMinutes +
-                                          nextValue.inMinutes,
-                                    ),
-                                  ),
-                              worker: currentWorker,
-                              paramAppointment: paramAppointment)
+                      } else if (!avaliableDatesToAppointments
                           .map<String>((date) => DateFormat("HH").format(date))
                           .toSet()
                           .contains(txt)) {
@@ -695,19 +683,11 @@ class Dialogs {
                       );
                     },
                     suggestionsCallback: (query) {
-                      return appointmentProvider
-                          .avaliableHoursByDurationAtDate(
-                              date: dateTimeProvider.currentDateTime,
-                              duration: currentServices
-                                  .map<Duration>((service) => service.duration)
-                                  .reduce(
-                                    (previousValue, nextValue) => Duration(
-                                      minutes: previousValue.inMinutes +
-                                          nextValue.inMinutes,
-                                    ),
-                                  ),
-                              worker: currentWorker,
-                              paramAppointment: paramAppointment)
+                      return avaliableDatesToAppointments.isEmpty
+                          ? []
+                          : hourController.text.isEmpty
+                              ? []
+                              : avaliableDatesToAppointments
                           .where((date) =>
                               date.hour == int.parse(hourController.text))
                           .map<String>((date) => DateFormat("mm").format(date))
@@ -746,19 +726,7 @@ class Dialogs {
                         return "Selecionar Serviço!";
                       } else if (int.tryParse(txt!) == null) {
                         return "Valor Inválido";
-                      } else if (!appointmentProvider
-                          .avaliableHoursByDurationAtDate(
-                              date: dateTimeProvider.currentDateTime,
-                              duration: currentServices
-                                  .map<Duration>((service) => service.duration)
-                                  .reduce(
-                                    (previousValue, nextValue) => Duration(
-                                      minutes: previousValue.inMinutes +
-                                          nextValue.inMinutes,
-                                    ),
-                                  ),
-                              worker: currentWorker,
-                              paramAppointment: paramAppointment)
+                      } else if (!avaliableDatesToAppointments
                           .where((date) =>
                               date.hour == int.parse(hourController.text))
                           .map<String>((date) => DateFormat("mm").format(date))
