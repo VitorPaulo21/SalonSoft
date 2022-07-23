@@ -209,4 +209,10 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
         ((initialDate.compareTo(appointment.endDate) >= 0) &&
             endDate.isAfter(appointment.endDate));
   }
+
+  List<Appointments> getAppointmentsByService(Service service) {
+    return objectsPrivate
+        .where((appointment) => appointment.service.first == service)
+        .toList();
+  }
 }
