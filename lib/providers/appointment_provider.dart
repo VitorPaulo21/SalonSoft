@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:salon_soft/Interfaces/crud_hive_provider_interface.dart';
 import 'package:salon_soft/models/appointment.dart';
+import 'package:salon_soft/models/client.dart';
 import 'package:salon_soft/models/service.dart';
 import 'package:salon_soft/models/settings.dart';
 import 'package:salon_soft/providers/settings_provider.dart';
@@ -214,5 +215,34 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
     return objectsPrivate
         .where((appointment) => appointment.service.first == service)
         .toList();
+  }
+  
+  void removeServicesByClient(Client client) async {
+    List<Appointments> toRemove =
+        objects.where((appoint) => appoint.client.first == client).toList();
+    if (toRemove.isNotEmpty) {
+      for (Appointments appoint in toRemove) {
+        removeObject(appoint);
+      }
+    }
+  }
+
+  void removeServicesByService(Service serice) {
+    List<Appointments> toRemove =
+        objects.where((appoint) => appoint.service.contains(serice)).toList();
+    if (toRemove.isNotEmpty) {
+      for (Appointments appoint in toRemove) {
+        removeObject(appoint);
+      }
+    }
+  }
+
+  void removeServicesByWorker(Worker worker) async {
+    for (Appointments appoint in worker.appointments) {
+      objectsPrivate.remove(appoint);
+      appoint.delete();
+    }
+    worker.syncToHive();
+    notifyListeners();
   }
 }

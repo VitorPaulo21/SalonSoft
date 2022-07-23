@@ -5,10 +5,12 @@ import 'package:hive/hive.dart';
 import 'package:salon_soft/Interfaces/crud_hive_provider_interface.dart';
 import 'package:salon_soft/models/worker.dart';
 
+import 'appointment_provider.dart';
+
 class WorkerProvider extends CrudHiveProviderInterface<Worker> {
+  AppointmentProvider? appointmentProvider;
 
-
-  WorkerProvider() : super(boxName: "workers");
+  WorkerProvider(this.appointmentProvider) : super(boxName: "workers");
 
   @override
   void syncToHive() async {
@@ -19,10 +21,13 @@ class WorkerProvider extends CrudHiveProviderInterface<Worker> {
   }
   @override
   void removeObject(Worker worker) {
-   
+    if (appointmentProvider != null) {
+      
+      appointmentProvider?.removeServicesByWorker(worker);
     objectsPrivate.remove(worker);
     notifyListeners();
     worker.delete();
+    }
   }
   @override
   void removeAllObjects() {

@@ -329,9 +329,35 @@ class _ClientsScreenState extends State<ClientsScreen> {
           );
         }).then((value) {
       if (value ?? false) {
-        Provider.of<ClientsProvider>(context, listen: false)
-            .removeObject(client);
-        Navigator.of(context, rootNavigator: true).pop();
+        if (value ?? false) {
+          showDialog<bool>(
+              context: context,
+              builder: (ctx) {
+                return AlertDialog(
+                  title: const Text("Cuidado"),
+                  content: const Text(
+                      "Ao deletar este cliente todos os agendamentos relacionados a ele serão apagados da memória\nNão será possivel desfazer."),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop(true);
+                        },
+                        child: const Text("Deletar")),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop(false);
+                        },
+                        child: const Text("Cancelar"))
+                  ],
+                );
+              }).then((value) {
+            if (value ?? false) {
+              Provider.of<ClientsProvider>(context, listen: false)
+                  .removeObject(client);
+              Navigator.of(context, rootNavigator: true).pop();
+            }
+          });
+        }
       }
     });
   }

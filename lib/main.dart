@@ -63,27 +63,15 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        
         ChangeNotifierProvider<KeysProvider>(
-          lazy: false,
+          // lazy: false,
           create: (ctx) {
             return KeysProvider();
           },
         ),
-        ChangeNotifierProvider<WorkerProvider>(
-          create: (ctx) {
-            return WorkerProvider();
-          },
-        ),
-        ChangeNotifierProvider<ServicesProvider>(
-          create: (ctx) {
-            return ServicesProvider();
-          },
-        ),
-        ChangeNotifierProvider<ClientsProvider>(
-          create: (ctx) {
-            return ClientsProvider();
-          },
-        ),
+       
+        
         ChangeNotifierProvider<DateTimeProvider>(
           create: (ctx) {
             return DateTimeProvider();
@@ -95,10 +83,37 @@ class _MyAppState extends State<MyApp> {
           },
         ),
         ChangeNotifierProxyProvider<SettingsProvider, AppointmentProvider>(
+          lazy: false,
           create: (ctx) {
             return AppointmentProvider(null);
           },
           update: (ctx, settings, appointment) => AppointmentProvider(settings),
+        ),
+        ChangeNotifierProxyProvider<AppointmentProvider, WorkerProvider>(
+          // lazy: false,
+          create: (ctx) {
+            return WorkerProvider(null);
+          },
+          update: (ctx, appoint, _worker) {
+            return WorkerProvider(appoint);
+          },
+        ),
+        ChangeNotifierProxyProvider<AppointmentProvider, ServicesProvider>(
+          // lazy: false,
+          create: (ctx) {
+            return ServicesProvider(null);
+          },
+          update: (ctx, appoint, _service) {
+            return ServicesProvider(appoint);
+          },
+        ),
+        ChangeNotifierProxyProvider<AppointmentProvider, ClientsProvider>(
+          create: (ctx) {
+            return ClientsProvider(null);
+          },
+          update: (ctx, appoint, _client) {
+            return ClientsProvider(appoint);
+          },
         ),
       ],
       child: MaterialApp(

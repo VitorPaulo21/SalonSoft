@@ -426,9 +426,33 @@ class _ServicesScreenState extends State<ServicesScreen> {
           );
         }).then((value) {
       if (value ?? false) {
-        Provider.of<ServicesProvider>(context, listen: false)
-            .removeObject(service);
-        Navigator.of(context, rootNavigator: true).pop();
+        showDialog<bool>(
+            context: context,
+            builder: (ctx) {
+              return AlertDialog(
+                title: const Text("Cuidado"),
+                content: const Text(
+                    "Ao deletar este serviço, todos os agendamentos relacionados a ele serão apagados da memória.\nNão será possivel desfazer."),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context, rootNavigator: true).pop(true);
+                      },
+                      child: const Text("Deletar")),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context, rootNavigator: true).pop(false);
+                      },
+                      child: const Text("Cancelar"))
+                ],
+              );
+            }).then((value) {
+          if (value ?? false) {
+            Provider.of<ServicesProvider>(context, listen: false)
+                .removeObject(service);
+            Navigator.of(context, rootNavigator: true).pop();
+          }
+        });
       }
     });
   }

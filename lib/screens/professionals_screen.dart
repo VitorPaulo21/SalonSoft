@@ -505,10 +505,38 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
             ],
           );
         }).then((value) {
+     
+
       if (value ?? false) {
+        showDialog<bool>(
+            context: context,
+            builder: (ctx) {
+              return AlertDialog(
+                title: const Text("Cuidado"),
+                content: const Text(
+                    "Ao deletar este profissional, todos os agendamentos relacionados a ele serão apagados da memória.\nNão será possivel desfazer."),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context, rootNavigator: true).pop(true);
+                      },
+                      child: const Text("Deletar")),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context, rootNavigator: true).pop(false);
+                      },
+                      child: const Text("Cancelar"))
+                ],
+              );
+            }).then((value) {
+          if (value ?? false) {
+                
         Provider.of<WorkerProvider>(context, listen: false)
             .removeObject(worker);
-        Navigator.of(context, rootNavigator: true).pop();
+          }
+          Navigator.of(context, rootNavigator: true).pop();
+          
+        });
       }
     });
   }
