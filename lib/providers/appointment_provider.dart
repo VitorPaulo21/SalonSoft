@@ -81,6 +81,7 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
     List<int> avaliableMinutes = List<int>.generate(59, (index) => index);
     return avaliableMinutes;
   }
+
   List<DateTime> getAvaliableDatesAtDailyRangeBYDate(DateTime date) {
     List<DateTime> avaliableDates = [];
     DateTime openDate = _openTimeFromDate(date);
@@ -95,12 +96,12 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
     }
     return avaliableDates;
   }
+
   List<DateTime> avaliableHoursByDurationAtDate(
       {required DateTime date,
       required Duration duration,
       required Worker worker,
       Appointments? paramAppointment}) {
-
     List<DateTime> avaliableHours = [];
 
     DateTime openDate = _openTimeFromDate(date);
@@ -122,11 +123,14 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
 
     //Se o funcionario nao tiver agendamentos hoje retorna todos os horaios
     if (workerAppointments.isEmpty) {
-      avaliableHours.addAll(allDailyTimes);
+      avaliableHours.addAll(allDailyTimes.where(
+          (dateInList) => !(dateInList.add(duration).isAfter(closeDate))));
     } else {
       for (DateTime dateInList in allDailyTimes) {
         bool matchAnyAppointment = workerAppointments.any((appoint) {
-          if (_isDateOutAppointment(
+          if (dateInList.add(duration).isAfter(closeDate)) {
+            return true;
+          } else if (_isDateOutAppointment(
               initialDate: dateInList,
               endDate: dateInList.add(duration),
               appointment: appoint)) {
@@ -159,20 +163,15 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
         duration: duration,
         worker: worker,
         paramAppointment: paramAppointment);
-   
 
     late DateTime nextDate;
     if (dates.isEmpty) {
-   
       nextDate = date;
     } else if (dates[0].isAtSameMomentAs(date)) {
-  
       nextDate = date;
     } else if (dates.any((dateItem) => dateItem.compareTo(date) >= 0)) {
-
       nextDate = dates.firstWhere((dateItem) => dateItem.compareTo(date) >= 0);
     } else {
-
       nextDate = dates
           .lastWhere((dateItem) => dateItem.compareTo(date.add(duration)) <= 0)
           .subtract(duration);
@@ -180,6 +179,7 @@ class AppointmentProvider extends CrudHiveProviderInterface<Appointments> {
 
     return nextDate;
   }
+
   DateTime _closeTimeFromDate(DateTime date) {
     return DateTime(
       date.year,

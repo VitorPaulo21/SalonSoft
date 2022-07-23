@@ -8,10 +8,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
+import 'package:salon_soft/models/appointments.dart';
 import 'package:salon_soft/models/service.dart';
 import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/services_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../components/most_selled_services_chart.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({Key? key}) : super(key: key);
@@ -64,26 +67,40 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   child: Container(
                     width: constrains.maxWidth / 3,
                     height: 300,
-                    child: mostSelledServices(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: const [
+                        Text(
+                          "Servios mais vendidos",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        
+                        Expanded(child: MostSelledServices()),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Card(
-                  elevation: 5,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15))),
-                  child: Container(
-                    height: (constrains.maxHeight - 30 - 15 - 10 - 300) > 400
-                        ? constrains.maxHeight - 30 - 15 - 10 - 300 - 16
-                        : 400,
-                    width: constrains.maxWidth / 3,
-                  ),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
+                // const SizedBox(
+                //   height: 15,
+                // ),
+                // Card(
+                //   elevation: 5,
+                //   shape: const RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.all(Radius.circular(15))),
+                //   child: Container(
+                //     height: (constrains.maxHeight - 30 - 15 - 10 - 300) > 400
+                //         ? constrains.maxHeight - 30 - 15 - 10 - 300 - 16
+                //         : 400,
+                //     width: constrains.maxWidth / 3,
+                //   ),
+                // ),
+                // SizedBox(
+                //   height: 30,
+                // ),
               ],
             ),
           )
@@ -417,93 +434,4 @@ class _ServicesScreenState extends State<ServicesScreen> {
   }
 }
 
-class mostSelledServices extends StatefulWidget {
-  const mostSelledServices({
-    Key? key,
-  }) : super(key: key);
 
-  @override
-  State<mostSelledServices> createState() => _mostSelledServicesState();
-}
-
-class _mostSelledServicesState extends State<mostSelledServices> {
-  @override
-  Widget build(BuildContext context) {
-    ServicesProvider servicesProvider = Provider.of<ServicesProvider>(context);
-    AppointmentProvider appointmentProvider =
-        Provider.of<AppointmentProvider>(context);
-    Map<Service, Duration> selledServices = {};
-    for (Service service in servicesProvider.objects) {
-      selledServices.putIfAbsent(
-        service,
-        () => appointmentProvider
-            .getAppointmentsByService(service)
-            .fold<Duration>(
-              Duration(),
-              (previousValue, element) => Duration(
-                minutes: previousValue.inMinutes +
-                    element.service
-                        .fold<Duration>(
-                          Duration(),
-                          (previousServiceValue, serviceElement) => Duration(
-                            minutes: previousServiceValue.inMinutes +
-                                serviceElement.duration.inMinutes,
-                          ),
-                        )
-                        .inMinutes,
-              ),
-            ),
-      );
-    }
-    SplayTreeMap<Service, Duration> mostSelledServices =
-        SplayTreeMap<Service, Duration>.from(
-            selledServices,
-            ((key1, key2) => selledServices[key1]!
-                .inMinutes
-                .compareTo(selledServices[key2]!.inMinutes)));
-
-    if (mostSelledServices.length > 3) {
-      while (mostSelledServices.length > 3) {
-        mostSelledServices.remove(mostSelledServices.lastKey());
-      }
-    }
-    List<Map<String, int>> dataSource = [];
-    for (MapEntry<Service, Duration> entry in mostSelledServices.entries) {
-      dataSource.add({entry.key.toString(): entry.value.inMinutes});
-    }
-
-    print(selledServices);
-    print(mostSelledServices);
-    print(dataSource);
-    return SfCircularChart(
-      legend: Legend(
-          // textStyle: TextStyle(fontSize: 10),
-
-          isVisible: true,
-          position: LegendPosition.bottom,
-          isResponsive: true,
-          overflowMode: LegendItemOverflowMode.wrap,
-          orientation: LegendItemOrientation.vertical),
-      series: <CircularSeries<Map<String, int>, String>>[
-        DoughnutSeries(
-            dataLabelMapper: (datum, index) {
-              int thisValue = (datum.values.first * 100);
-              int totalValue = dataSource.fold<int>(
-                  0,
-                  (previousValue, element) =>
-                      previousValue + element.values.first);
-              return "${(thisValue / (totalValue <= 0 ? 1 : totalValue)).toStringAsFixed(2)}%";
-            },
-            dataLabelSettings: const DataLabelSettings(
-              isVisible: true,
-              labelPosition: ChartDataLabelPosition.outside,
-            ),
-            dataSource: dataSource,
-            radius: "50%",
-            innerRadius: "65%",
-            xValueMapper: (value, index) => value.keys.first,
-            yValueMapper: (value, index) => 25)
-      ],
-    );
-  }
-}
