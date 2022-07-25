@@ -20,6 +20,7 @@ import 'package:salon_soft/providers/worker_provider.dart';
 
 import 'package:salon_soft/screens/home_screen.dart';
 import 'package:salon_soft/screens/professionals_screen.dart';
+import 'package:salon_soft/screens/settings_screen.dart';
 import 'package:salon_soft/utils/routes.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:path_provider/path_provider.dart' as pathProvider;
@@ -137,6 +138,7 @@ class _MyAppState extends State<MyApp> {
         routes: {
           AppRoutes.HOME: (ctx) => HomeScreen(),
           AppRoutes.PROFESSIONALS: (ctx) => ProfessionalsScreen(),
+          AppRoutes.SETTINGS: (ctx) => SettingsScreen(),
         },
       ),
     );

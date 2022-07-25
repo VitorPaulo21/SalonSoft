@@ -47,6 +47,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
           ),
           Expanded(
               child: GridView.builder(
+                  padding: EdgeInsets.only(left: 10),
                   itemCount: clients.length + 1,
                   controller: ScrollController(),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -198,47 +199,50 @@ class _ClientsScreenState extends State<ClientsScreen> {
     );
   }
 
-  Stack addClientGridItem(BuildContext context) {
-    return Stack(alignment: Alignment.bottomCenter, children: [
-      Container(
-        alignment: Alignment.center,
-        color: Colors.grey[200],
-        child: Icon(
-          Icons.add_circle,
-          color: Colors.grey[300],
-          size: 120,
-        ),
-      ),
-      Positioned.fill(
-        child: MaterialButton(
-          padding: const EdgeInsets.all(0),
-          onPressed: () {
-            addClientDialog(context);
-          },
-          // splashColor: Colors.pink,
-          // highlightColor: Colors.pink,
-          child: Container(
-            alignment: Alignment.bottomCenter,
-            width: double.infinity,
-            child: ElevatedButton(
-                onPressed: () {
-                  addClientDialog(context);
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.person_add_alt),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text("Adicionar")
-                  ],
-                )),
+  Widget addClientGridItem(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(15),
+      child: Stack(alignment: Alignment.bottomCenter, children: [
+        Container(
+          alignment: Alignment.center,
+          color: Colors.grey[200],
+          child: Icon(
+            Icons.add_circle,
+            color: Colors.grey[300],
+            size: 120,
           ),
         ),
-      )
-    ]);
+        Positioned.fill(
+          child: MaterialButton(
+            padding: const EdgeInsets.all(0),
+            onPressed: () {
+              addClientDialog(context);
+            },
+            // splashColor: Colors.pink,
+            // highlightColor: Colors.pink,
+            child: Container(
+              alignment: Alignment.bottomCenter,
+              width: double.infinity,
+              child: ElevatedButton(
+                  onPressed: () {
+                    addClientDialog(context);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.person_add_alt),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text("Adicionar")
+                    ],
+                  )),
+            ),
+          ),
+        )
+      ]),
+    );
   }
 
   Future<dynamic> addClientDialog(BuildContext context, [Client? client]) {

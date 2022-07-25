@@ -22,6 +22,7 @@ import 'package:salon_soft/screens/appointment_screen.dart';
 import 'package:salon_soft/screens/clients_screen.dart';
 import 'package:salon_soft/screens/professionals_screen.dart';
 import 'package:salon_soft/screens/servicesScreen.dart';
+import 'package:salon_soft/utils/routes.dart';
 
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -116,7 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 10,
           ),
           TitledIconButton(
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).pushNamed(AppRoutes.SETTINGS);
+            },
             icon: const Icon(
               Icons.settings,
               color: Colors.black,
@@ -132,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height - kToolbarHeight,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.max,
           children: [
             SingleChildScrollView(
@@ -154,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Column SideBarSelection(BuildContext context) {
+  Widget SideBarSelection(BuildContext context) {
     AppointmentProvider appointmentProvider =
         Provider.of<AppointmentProvider>(context);
     WorkerProvider workerProvider = Provider.of<WorkerProvider>(context);
@@ -163,109 +166,117 @@ class _HomeScreenState extends State<HomeScreen> {
         Provider.of<DateTimeProvider>(context, listen: false);
     ServicesProvider servicesProvider =
         Provider.of<ServicesProvider>(context, listen: false);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(
-          height: 10,
-        ),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          width: 1440 / 6,
-          child: ElevatedButton(
-            onLongPress: () {
-              // appointmentProvider.removeAllObjects();
-            },
-            onPressed: () {
-              Dialogs.addAppointmentDialog(context, null, null);
-            },
-            child: const TitledIcon(
-              title: "Adicionar",
-              icon: Icon(Icons.calendar_month_outlined),
-              centered: true,
+    return Container(
+      height: MediaQuery.of(context).size.height - kToolbarHeight - 5,
+      color: Colors.white,
+      child: SingleChildScrollView(
+        controller: ScrollController(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            const SizedBox(
+              height: 10,
             ),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              width: 1440 / 6,
+              child: ElevatedButton(
+                onLongPress: () {
+                  // appointmentProvider.removeAllObjects();
+                },
+                onPressed: () {
+                  Dialogs.addAppointmentDialog(context, null, null);
+                },
+                child: const TitledIcon(
+                  title: "Adicionar",
+                  icon: Icon(Icons.calendar_month_outlined),
+                  centered: true,
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+            const SizedBox(
+              height: 10,
+            ),
+            Container(
+              width: 1440 / 6,
+              height: 1440 / 6,
+              child: SfDateRangePicker(
+                monthViewSettings:
+                    const DateRangePickerMonthViewSettings(dayFormat: "E"),
+                enablePastDates: false,
+                initialSelectedDate: dateTimeProvider.currentDateTime,
+                onSelectionChanged: (dateTime) {
+                  dateTimeProvider.currentDateTime = dateTime.value;
+                },
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              width: 1440 / 6,
+              child: Text("Legenda"),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            TitledIcon(
+                title: "Pendentes",
+                icon: Icon(
+                  Icons.check_circle,
+                  color: Colors.amber.withAlpha(110),
+                )),
+            const SizedBox(
+              height: 5,
+            ),
+            TitledIcon(
+                title: "Atendendo",
+                icon: Icon(
+                  Icons.check_circle,
+                  color: Colors.purple.withAlpha(110),
+                )),
+            const SizedBox(
+              height: 5,
+            ),
+            TitledIcon(
+                title: "Concluido",
+                icon: Icon(
+                  Icons.check_circle,
+                  color: Colors.green.withAlpha(110),
+                )),
+            const SizedBox(
+              height: 5,
+            ),
+            TitledIcon(
+              title: "Horario Cancelado",
+              icon: Icon(
+                Icons.check_circle,
+                color: Colors.red.withAlpha(110),
+              ),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            TitledIcon(
+              title: "Horario Indisponivel",
+              icon: Icon(
+                Icons.check_circle,
+                color: Colors.indigo.withAlpha(110),
+              ),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+          ],
         ),
-        const SizedBox(
-          height: 10,
-        ),
-        Container(
-          width: 1440 / 6,
-          height: 1440 / 6,
-          child: SfDateRangePicker(
-            monthViewSettings:
-                const DateRangePickerMonthViewSettings(dayFormat: "E"),
-            enablePastDates: false,
-            initialSelectedDate: dateTimeProvider.currentDateTime,
-            onSelectionChanged: (dateTime) {
-              dateTimeProvider.currentDateTime = dateTime.value;
-            },
-          ),
-        ),
-        Container(
-          alignment: Alignment.center,
-          width: 1440 / 6,
-          child: Text("Legenda"),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        TitledIcon(
-            title: "Pendentes",
-            icon: Icon(
-              Icons.check_circle,
-              color: Colors.amber.withAlpha(110),
-            )),
-        const SizedBox(
-          height: 5,
-        ),
-        TitledIcon(
-            title: "Atendendo",
-            icon: Icon(
-              Icons.check_circle,
-              color: Colors.purple.withAlpha(110),
-            )),
-        const SizedBox(
-          height: 5,
-        ),
-        TitledIcon(
-            title: "Concluido",
-            icon: Icon(
-              Icons.check_circle,
-              color: Colors.green.withAlpha(110),
-            )),
-        const SizedBox(
-          height: 5,
-        ),
-        TitledIcon(
-          title: "Horario Cancelado",
-          icon: Icon(
-            Icons.check_circle,
-            color: Colors.red.withAlpha(110),
-          ),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        TitledIcon(
-          title: "Horario Indisponivel",
-          icon: Icon(
-            Icons.check_circle,
-            color: Colors.indigo.withAlpha(110),
-          ),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-      ],
+      ),
     );
   }
 
