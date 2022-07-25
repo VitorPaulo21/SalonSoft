@@ -17,6 +17,8 @@ class Settings extends HiveObject {
   int intervalOfMinutes;
   @HiveField(5)
   List<int> _stateColors = [];
+  @HiveField(6)
+  bool worWithFinances;
 
   Settings({
     required this.closeHour,
@@ -24,7 +26,8 @@ class Settings extends HiveObject {
     required this.openHour,
     required this.openMinute,
     required this.intervalOfMinutes,
-      List<int> stateColorsList = const []}) {
+      List<int> stateColorsList = const [],
+      this.worWithFinances = false}) {
     if (stateColorsList.isEmpty) {
       stateColorsList = [
         Colors.amber.value,

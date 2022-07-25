@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/models/appointments.dart';
 import 'package:salon_soft/models/client.dart';
@@ -117,6 +119,12 @@ class _MyAppState extends State<MyApp> {
         ),
       ],
       child: MaterialApp(
+        
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: [const Locale('pt', 'BR')],
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(

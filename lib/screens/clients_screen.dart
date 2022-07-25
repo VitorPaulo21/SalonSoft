@@ -12,6 +12,7 @@ import 'package:salon_soft/models/client.dart';
 import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/clients_provider.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
+import 'package:salon_soft/providers/settings_provider.dart';
 
 class ClientsScreen extends StatefulWidget {
   const ClientsScreen({Key? key}) : super(key: key);
@@ -68,6 +69,8 @@ class _ClientsScreenState extends State<ClientsScreen> {
         Provider.of<AppointmentProvider>(context, listen: false);
     DateTimeProvider dateTimeProvider =
         Provider.of<DateTimeProvider>(context, listen: false);
+    SettingsProvider settingsProvider =
+        Provider.of<SettingsProvider>(context, listen: false);
     List<Appointments> todayAppointments = appointmentProvider
         .getAppointmensByDate(dateTimeProvider.currentDateTime);
     int appointmentsInMinutes(List<Appointments> appoints) {
@@ -118,6 +121,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                       percentageValue: todayClientAppointmentsInMinutes,
                       allvalueLegend: "Atendimentos",
                       percentualValueLegend: "Este Cliente"),
+                  if (settingsProvider.objectPrivate.worWithFinances)
                   FittedBox(
                     child: Text(
                         "Valor Gasto: R\$${Random().nextInt(1000).toStringAsFixed(2)}"),

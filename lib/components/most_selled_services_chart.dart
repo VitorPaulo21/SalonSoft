@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:salon_soft/providers/date_time_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../models/appointments.dart';
@@ -20,12 +21,14 @@ class _MostSelledServicesState extends State<MostSelledServices> {
   @override
   Widget build(BuildContext context) {
     ServicesProvider servicesProvider = Provider.of<ServicesProvider>(context);
+    DateTimeProvider dateTimeProvider = Provider.of<DateTimeProvider>(context);
     AppointmentProvider appointmentProvider =
         Provider.of<AppointmentProvider>(context);
     Map<Service, Duration> selledServices = {};
     for (Service service in servicesProvider.objects) {
       List<Appointments> toAdd =
-          appointmentProvider.getAppointmentsByService(service);
+          appointmentProvider.getAppointmentsByService(
+          dateTimeProvider.currentDateTime, service);
       if (toAdd.isNotEmpty) {
         selledServices.putIfAbsent(
             service,

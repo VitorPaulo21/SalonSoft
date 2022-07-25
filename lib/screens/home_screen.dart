@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
           width: 1440 / 6,
           child: ElevatedButton(
             onLongPress: () {
-              appointmentProvider.removeAllObjects();
+              // appointmentProvider.removeAllObjects();
             },
             onPressed: () {
               Dialogs.addAppointmentDialog(context, null, null);
@@ -201,6 +201,8 @@ class _HomeScreenState extends State<HomeScreen> {
           width: 1440 / 6,
           height: 1440 / 6,
           child: SfDateRangePicker(
+            monthViewSettings:
+                const DateRangePickerMonthViewSettings(dayFormat: "E"),
             enablePastDates: false,
             initialSelectedDate: dateTimeProvider.currentDateTime,
             onSelectionChanged: (dateTime) {

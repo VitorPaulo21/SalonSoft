@@ -22,13 +22,14 @@ class SettingsAdapter extends TypeAdapter<Settings> {
       openHour: fields[0] as int,
       openMinute: fields[1] as int,
       intervalOfMinutes: fields[4] as int,
+      worWithFinances: fields[6] as bool,
     ).._stateColors = (fields[5] as List).cast<int>();
   }
 
   @override
   void write(BinaryWriter writer, Settings obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.openHour)
       ..writeByte(1)
@@ -40,7 +41,9 @@ class SettingsAdapter extends TypeAdapter<Settings> {
       ..writeByte(4)
       ..write(obj.intervalOfMinutes)
       ..writeByte(5)
-      ..write(obj._stateColors);
+      ..write(obj._stateColors)
+      ..writeByte(6)
+      ..write(obj.worWithFinances);
   }
 
   @override
