@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:salon_soft/components/settings_Settings_screen.dart';
 
 import '../components/profile_settings_screen.dart';
 
@@ -138,7 +139,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Container(
                     width: constraints.maxWidth,
                     height: constraints.maxHeight,
-                    child: ProfileSettingsScreen(),
+                    child: selectedIndex == 0
+                        ? ProfileSettingsScreen()
+                        : SettingsComponentScreen(),
                   ),
                 );
               },
