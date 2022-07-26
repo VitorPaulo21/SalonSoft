@@ -5,8 +5,9 @@ part 'client.g.dart';
 class Client extends HiveObject {
   @HiveField(0)
   String name;
+  String phoneNumber;
 
-  Client({required this.name});
+  Client({required this.name, this.phoneNumber = ""});
 
   @override
   String toString() {

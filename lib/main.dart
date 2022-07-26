@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_soft/models/appointments.dart';
 import 'package:salon_soft/models/client.dart';
+import 'package:salon_soft/models/profile.dart';
 import 'package:salon_soft/models/service.dart';
 import 'package:salon_soft/models/settings.dart';
 import 'package:salon_soft/models/worker.dart';
@@ -14,6 +15,7 @@ import 'package:salon_soft/providers/appointment_provider.dart';
 import 'package:salon_soft/providers/clients_provider.dart';
 import 'package:salon_soft/providers/date_time_provider.dart';
 import 'package:salon_soft/providers/keys_provider.dart';
+import 'package:salon_soft/providers/profileProvider.dart';
 import 'package:salon_soft/providers/services_provider.dart';
 import 'package:salon_soft/providers/settings_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
@@ -35,12 +37,14 @@ void main() async {
   Hive.registerAdapter(ServiceAdapter());
   Hive.registerAdapter(WorkerAdapter());
   Hive.registerAdapter(SettingsAdapter());
+  Hive.registerAdapter(ProfileAdapter());
 
   await Hive.openBox<Appointments>("appointments");
   await Hive.openBox<Client>("clients");
   await Hive.openBox<Service>("services");
   await Hive.openBox<Worker>("workers");
   await Hive.openBox<Settings>("settings");
+  await Hive.openBox<Profile>("profile");
   
   runApp(const MyApp());
   await DesktopWindow.setMaxWindowSize(Size(3840, 2160));
@@ -67,6 +71,12 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         
+        ChangeNotifierProvider<ProfileProvider>(
+          // lazy: false,
+          create: (ctx) {
+            return ProfileProvider();
+          },
+        ),
         ChangeNotifierProvider<KeysProvider>(
           // lazy: false,
           create: (ctx) {

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
+import '../components/profile_settings_screen.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
@@ -11,6 +13,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  int selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,8 +23,107 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Row(
           children: [
             Container(
-              width: MediaQuery.of(context).size.width / 5,
-              child: Column(),
+              width: MediaQuery.of(context).size.width / 5 < 280
+                  ? 280
+                  : MediaQuery.of(context).size.width / 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ReturnTitleBar(),
+                  SizedBox(
+                    height: 25,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const ListTile(
+                          title: Text(
+                            "AJUSTES",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
+                          ),
+                        ),
+                        const Divider(),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        ListTile(
+                          minLeadingWidth: 20,
+                          selected: selectedIndex == 0,
+                          leading: Icon(Icons.person_outline),
+                          title: Text("Perfil"),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(90)),
+                          selectedTileColor: Colors.white,
+                          selectedColor: Theme.of(context).colorScheme.primary,
+                          onTap: () {
+                            setState(() {
+                              selectedIndex = 0;
+                            });
+                          },
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        ListTile(
+                          minLeadingWidth: 20,
+                          selected: selectedIndex == 1,
+                          leading: Icon(Icons.settings_outlined),
+                          title: Text("Configurações"),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(90)),
+                          selectedTileColor: Colors.white,
+                          selectedColor: Theme.of(context).colorScheme.primary,
+                          onTap: () {
+                            setState(() {
+                              selectedIndex = 1;
+                            });
+                          },
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        ListTile(
+                          minLeadingWidth: 20,
+                          selected: selectedIndex == 2,
+                          leading: Icon(Icons.manage_accounts_outlined),
+                          title: Text("Conta"),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(90)),
+                          selectedTileColor: Colors.white,
+                          selectedColor: Theme.of(context).colorScheme.primary,
+                          onTap: () {
+                            setState(() {
+                              selectedIndex = 2;
+                            });
+                          },
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        ListTile(
+                          minLeadingWidth: 20,
+                          selected: selectedIndex == 3,
+                          leading: Icon(Icons.dashboard_customize_outlined),
+                          title: Text("Personalização"),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(90)),
+                          selectedTileColor: Colors.white,
+                          selectedColor: Theme.of(context).colorScheme.primary,
+                          onTap: () {
+                            setState(() {
+                              selectedIndex = 3;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
             Expanded(child: LayoutBuilder(
               builder: (context, constraints) {
@@ -36,12 +138,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Container(
                     width: constraints.maxWidth,
                     height: constraints.maxHeight,
+                    child: ProfileSettingsScreen(),
                   ),
                 );
               },
             ))
           ],
         ),
+      ),
+    );
+  }
+}
+
+
+
+class ReturnTitleBar extends StatelessWidget {
+  const ReturnTitleBar({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: IconButton(
+          splashRadius: 25,
+          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(Icons.arrow_back_ios)),
+      title: Text(
+        "Salon Studio",
+        style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 25,
+            color: Theme.of(context).colorScheme.primary),
       ),
     );
   }
