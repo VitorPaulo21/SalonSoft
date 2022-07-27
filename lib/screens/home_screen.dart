@@ -43,9 +43,24 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.grey,
         elevation: 5,
-        title: Text(
-          "Salon Studio",
-          style: TextStyle(color: Theme.of(context).colorScheme.primary),
+        leadingWidth: 40,
+        title: Row(
+          children: [
+            const Image(
+              width: 40,
+              height: 40,
+              image: AssetImage("lib/assets/abilitybco.png"),
+              fit: BoxFit.contain,
+              color: Colors.black,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              "Ability Agenda",
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+          ],
         ),
         actions: [
           TitledIconButton(

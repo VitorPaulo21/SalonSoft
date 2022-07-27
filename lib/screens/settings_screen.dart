@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:salon_soft/components/account_settings_screen.dart';
+import 'package:salon_soft/components/custom_settings-screen.dart';
 import 'package:salon_soft/components/settings_Settings_screen.dart';
 
 import '../components/profile_settings_screen.dart';
@@ -141,7 +143,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     height: constraints.maxHeight,
                     child: selectedIndex == 0
                         ? ProfileSettingsScreen()
-                        : SettingsComponentScreen(),
+                        : selectedIndex == 1
+                            ? SettingsComponentScreen()
+                            : selectedIndex == 2
+                                ? AccountSettingsScreen()
+                                : CustomSettingsScreen(),
                   ),
                 );
               },
@@ -168,7 +174,7 @@ class ReturnTitleBar extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.arrow_back_ios)),
       title: Text(
-        "Salon Studio",
+        "Ability Agenda",
         style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 25,
