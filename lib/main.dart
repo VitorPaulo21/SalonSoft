@@ -26,6 +26,7 @@ import 'dart:convert';
 import 'package:salon_soft/screens/home_screen.dart';
 import 'package:salon_soft/screens/professionals_screen.dart';
 import 'package:salon_soft/screens/settings_screen.dart';
+import 'package:salon_soft/utils/global_paths.dart';
 import 'package:salon_soft/utils/routes.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:path_provider/path_provider.dart' as pathProvider;
@@ -33,9 +34,7 @@ import 'package:path_provider/path_provider.dart' as pathProvider;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter(Platform.resolvedExecutable
-          .substring(0, Platform.resolvedExecutable.lastIndexOf("\\")) +
-      "\\DataBase");
+  await Hive.initFlutter(GlobalPaths.DATABASE_PATH);
   const secureStorage = FlutterSecureStorage();
   // if key not exists return null
   final encryprionKey = await secureStorage.read(key: 'key');

@@ -40,4 +40,17 @@ class Profile extends HiveObject {
     required this.numero,
     required this.phoneNumber,
   });
+
+  bool areAllFilled() {
+    return name.isNotEmpty &&
+        cnpj.isNotEmpty &&
+        cpf.isNotEmpty &&
+        email.isNotEmpty &&
+        phoneNumber.isNotEmpty &&
+        endereco.isNotEmpty &&
+        numero.isNotEmpty &&
+        bairro.isNotEmpty &&
+        cidade.isNotEmpty &&
+        estado.isNotEmpty;
+  }
 }

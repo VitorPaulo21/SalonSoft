@@ -9,12 +9,14 @@ class ProfileImageRound extends StatefulWidget {
   double radius;
   double fontSize;
   bool withText;
+  String path;
 
   ProfileImageRound({
     Key? key,
     this.radius = 25,
     this.fontSize = 25,
     this.withText = true,
+    this.path = "",
   }) : super(key: key);
 
   @override
@@ -25,6 +27,8 @@ class _ProfileImageRoundState extends State<ProfileImageRound> {
   @override
   Widget build(BuildContext context) {
     ProfileProvider profileProvider = Provider.of<ProfileProvider>(context);
+    
+    imageCache.clear();
     return widget.withText
         ? ListTile(
             leading: CircleAvatar(
@@ -64,14 +68,17 @@ class _ProfileImageRoundState extends State<ProfileImageRound> {
             radius: widget.radius,
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Colors.transparent,
-            foregroundImage: profileProvider.objectPrivate.logoPath.isEmpty
+            foregroundImage: widget.path.isNotEmpty
+                ? FileImage(File(widget.path))
+                : profileProvider.objectPrivate.logoPath.isEmpty
                 ? null
                 : FileImage(File(profileProvider.objectPrivate.logoPath)),
             child: profileProvider.objectPrivate.logoPath.isEmpty &&
                     profileProvider.objectPrivate.name.isEmpty
-                ? const Icon(
+                ? Icon(
                     Icons.person_outline,
                     color: Colors.white,
+                    size: widget.radius,
                   )
                 : Text(
                     profileProvider.objectPrivate.name.substring(0, 1),

@@ -8,28 +8,38 @@ class ProfileProvider extends CrudHiveSingleProviderInterface<Profile> {
             boxName: "profile",
             initialObjectValue: Profile(
                 bairro: "",
-                cidade: "Pará de Minas",
+                cidade: "",
                 cnpj: "",
                 cpf: "",
                 email: "",
                 endereco: "",
-                estado: "MG",
+                estado: "",
                 logoPath: "",
-                name: "Art Visual",
+                name: "",
                 numero: "",
                 phoneNumber: ""));
 
-  bool areAllFieldsEmpty() {
-    return objectPrivate.bairro.isEmpty &&
-        objectPrivate.cidade.isEmpty &&
-        (objectPrivate.cnpj.isEmpty || objectPrivate.cpf.isEmpty) &&
-        objectPrivate.email.isEmpty &&
-        objectPrivate.endereco.isEmpty &&
-        objectPrivate.endereco.isEmpty &&
-        objectPrivate.estado.isEmpty &&
-        objectPrivate.name.isEmpty &&
-        objectPrivate.name.isEmpty &&
-        objectPrivate.numero.isEmpty &&
-        objectPrivate.phoneNumber.isEmpty;
+  bool areAllFieldsFilled() {
+    return objectPrivate.bairro.isNotEmpty &&
+        objectPrivate.cidade.isNotEmpty &&
+        (objectPrivate.cnpj.isNotEmpty || objectPrivate.cpf.isNotEmpty) &&
+        objectPrivate.email.isNotEmpty &&
+        objectPrivate.endereco.isNotEmpty &&
+        objectPrivate.endereco.isNotEmpty &&
+        objectPrivate.estado.isNotEmpty &&
+        objectPrivate.name.isNotEmpty &&
+        objectPrivate.name.isNotEmpty &&
+        objectPrivate.numero.isNotEmpty &&
+        objectPrivate.phoneNumber.isNotEmpty;
   }
+
+  void changePhotoPath(String path) {
+    objectPrivate.logoPath = path;
+    notifyListeners();
+    if (objectPrivate.isInBox) {
+      objectPrivate.save();
+    }
+  }
+
+  
 }

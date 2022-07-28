@@ -14,6 +14,7 @@ import 'package:salon_soft/providers/date_time_provider.dart';
 import 'package:salon_soft/providers/settings_provider.dart';
 import 'package:salon_soft/providers/worker_provider.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:salon_soft/utils/global_paths.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../components/circular_percentage_chart.dart';
@@ -439,10 +440,9 @@ class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
                             String newPath = "";
                             if (imageProfile != null) {
                               if (worker.photoPath.isEmpty) {
-                                Directory directory =
-                                    await getApplicationDocumentsDirectory();
+                                
                                 Directory finalDirectory = Directory(
-                                    "${directory.path}\\SalonSoft\\ProfileImages");
+                                    GlobalPaths.USER_PROFILE_IMAGE_DIRECTORY);
                                 if (!(await finalDirectory.exists())) {
                                   await finalDirectory.create(recursive: true);
                                 }
