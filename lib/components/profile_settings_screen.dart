@@ -50,7 +50,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
   void submitForm() async {
     if (formKey.currentState?.validate() ?? false) {
-      imageCache.clear();
+      
       if (await io.File(photoPathController.text).exists()) {
         io.File file = io.File(photoPathController.text);
         io.File newFile =
